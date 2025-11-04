@@ -1,1 +1,1 @@
-sync1 init
+sync1 init add
