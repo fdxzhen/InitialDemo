@@ -1,4 +1,4 @@
 sync1
-x
+1-add
 sync2
 2-add
