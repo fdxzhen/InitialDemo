@@ -38,3 +38,5 @@
 3193
 3203
 >>>>>>> refs/heads/main
+=SUM(IF(SEQUENCE(B2,1,0,1)*D2<E2, 1 + INT((E2 - SEQUENCE(B2,1,0,1)*D2)/C2), 0))
+=SUMPRODUCT((F2:Fn*D2<E2)*(1+INT((E2-F2:Fn*D2)/C2)))
