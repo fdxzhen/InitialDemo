@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Java 面试题库（可编辑 JSON，AND 筛选）</title>
+    <style>
+        body{font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;margin:20px;color:#222;background:#f5f7fb}
+        header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+        h1{font-size:18px;margin:0}
+        .controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;align-items:center}
+        select,input,button,textarea{padding:6px 8px;border-radius:6px;border:1px solid #ccc;background:#fff}
+        table{width:100%;border-collapse:collapse;margin-top:12px}
+        th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+        th{background:#fafafa}
+        .pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#eef4ff;border:1px solid #d8e7ff;font-size:12px;margin-left:6px}
+        .qa{margin-top:12px;padding:12px;border:1px solid #eee;border-radius:8px;background:#fff}
+        .small{font-size:12px;color:#666}
+        #fileInput{display:none}
+        textarea{width:100%;min-height:40px;margin:4px 0;resize:vertical}
+    </style>
+</head>
+<body>
+<header>
+    <div>
+        <h1>Java 面试题库（可编辑 JSON，AND 筛选）</h1>
+        <div class="small">加载本地 JSON → 下拉选择即刻生效（同时满足所有条件）</div>
+    </div>
+    <div>
+        <input id="fileInput" type="file" accept=".json" />
+        <button id="btnExport">导出筛选结果</button>
+    </div>
+</header>
+
+<div class="controls">
+    <label>模块：
+        <select id="filter-module"><option value="">全部</option></select>
+    </label>
+    <label>难度：
+        <select id="filter-difficulty"><option value="">全部</option></select>
+    </label>
+    <label>题型：
+        <select id="filter-type"><option value="">全部</option></select>
+    </label>
+    <label>关键词：
+        <input id="filter-keyword" placeholder="题目/答案/考察点/延伸/关键词" />
+    </label>
+</div>
+
+<div id="stats" class="small"></div>
+
+<table id="qa-table" style="display:none">
+    <thead>
+    <tr><th>ID</th><th>模块</th><th>难度</th><th>题型</th><th>题目</th></tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<div id="detail"></div>
+
+<script>
+    let rawArray = []
+    let bank = []
+
+    function normalizeItem(item, idx){
+        const rawId = item.id || ('Q-' + (idx+1))
+        const rawModule = item.module || ''
+        const rawDifficulty = item.difficulty || ''
+        const rawType = item.type || ''
+        const rawTitle = item.title || ''
+        const rawAnswer = item.answer || ''
+        const rawExamPoints = item.exam_points || ''
+        const rawFollowups = item.followups || ''
+        const rawKeywords = item.keywords || ''
+
+        const moduleNorm = String(rawModule).trim().toLowerCase()
+        const difficultyNorm = String(rawDifficulty).trim().toLowerCase()
+        const typeNorm = String(rawType).trim().toLowerCase()
+        const titleNorm = String(rawTitle).trim()
+        const searchText = (titleNorm + ' ' + rawAnswer + ' ' + rawExamPoints + ' ' + rawFollowups + ' ' + rawKeywords).toLowerCase()
+
+        return {
+            id: String(rawId),
+            module: String(rawModule),
+            moduleNorm,
+            difficulty: String(rawDifficulty),
+            difficultyNorm,
+            type: String(rawType),
+            typeNorm,
+            title: String(rawTitle),
+            answer: String(rawAnswer),
+            exam_points: String(rawExamPoints),
+            followups: String(rawFollowups),
+            keywords: String(rawKeywords),
+            searchText
+        }
+    }
+
+    function loadFromArray(arr){
+        rawArray = arr || []
+        bank = rawArray.map((it,i)=>normalizeItem(it,i))
+        renderFilters()
+        applyFilters()
+    }
+
+    function renderFilters(){
+        const mapModule = new Map(), mapDiff = new Map(), mapType = new Map()
+        bank.forEach(item=>{
+            if(item.moduleNorm && !mapModule.has(item.moduleNorm)) mapModule.set(item.moduleNorm,item.module)
+            if(item.difficultyNorm && !mapDiff.has(item.difficultyNorm)) mapDiff.set(item.difficultyNorm,item.difficulty)
+            if(item.typeNorm && !mapType.has(item.typeNorm)) mapType.set(item.typeNorm,item.type)
+        })
+        fillSelectWithMap('filter-module', mapModule)
+        fillSelectWithMap('filter-difficulty', mapDiff)
+        fillSelectWithMap('filter-type', mapType)
+    }
+
+    function fillSelectWithMap(selId, map){
+        const sel = document.getElementById(selId)
+        let html = '<option value="">全部</option>'
+        Array.from(map.keys()).sort().forEach(norm=>{
+            html += `<option value="${norm}">${map.get(norm)}</option>`
+        })
+        sel.innerHTML = html
+    }
+
+    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
+
+    function applyFilters(){
+        const moduleVal = (document.getElementById('filter-module').value||'').trim().toLowerCase()
+        const diffVal = (document.getElementById('filter-difficulty').value||'').trim().toLowerCase()
+        const typeVal = (document.getElementById('filter-type').value||'').trim().toLowerCase()
+        const kw = (document.getElementById('filter-keyword').value||'').trim().toLowerCase()
+
+        const filtered = bank.filter(item=>{
+            if(moduleVal && item.moduleNorm !== moduleVal) return false
+            if(diffVal && item.difficultyNorm !== diffVal) return false
+            if(typeVal && item.typeNorm !== typeVal) return false
+            if(kw && !item.searchText.includes(kw)) return false
+            return true
+        })
+
+        renderTable(filtered)
+        document.getElementById('stats').textContent = `显示 ${filtered.length} 条（总 ${bank.length} 条）`
+    }
+
+    function renderTable(list){
+        const table = document.getElementById('qa-table')
+        const tbody = table.querySelector('tbody')
+        tbody.innerHTML = ''
+        list.forEach(q=>{
+            const tr = document.createElement('tr')
+            tr.innerHTML = `<td><a href="#" data-id="${q.id}" class="link-id">${escapeHtml(q.id)}</a></td>
+                        <td>${escapeHtml(q.module)}</td>
+                        <td>${escapeHtml(q.difficulty)}</td>
+                        <td>${escapeHtml(q.type)}</td>
+                        <td>${escapeHtml(q.title)}</td>`
+            tbody.appendChild(tr)
+        })
+        table.style.display = list.length?'table':'none'
+        document.querySelectorAll('.link-id').forEach(a=>{
+            a.addEventListener('click', e=>{
+                e.preventDefault()
+                showDetail(e.target.dataset.id)
+            })
+        })
+    }
+
+    function showDetail(id){
+        const qIndex = bank.findIndex(x=>x.id===id)
+        if(qIndex===-1){ document.getElementById('detail').innerHTML=''; return }
+        const q = bank[qIndex]
+        const d = document.getElementById('detail')
+        d.innerHTML = `<div class="qa">
+    <div><strong>${escapeHtml(q.id)}</strong>
+      <span class="pill">${escapeHtml(q.module)}</span>
+      <span class="pill">${escapeHtml(q.difficulty)}</span>
+      <span class="pill">${escapeHtml(q.type)}</span>
+    </div>
+    <p><b>题目：</b> ${escapeHtml(q.title)}</p>
+    <p><b>答案要点：</b><br><textarea id="edit-answer" style="width:100%;min-height:60px">${escapeHtml(q.answer)}</textarea></p>
+    <p><b>考察点：</b><br><textarea id="edit-exam_points" style="width:100%;min-height:40px">${escapeHtml(q.exam_points)}</textarea></p>
+    <p><b>延伸：</b><br><textarea id="edit-followups" style="width:100%;min-height:40px">${escapeHtml(q.followups)}</textarea></p>
+    <p><b>关键词：</b><br><input id="edit-keywords" type="text" style="width:100%" value="${escapeHtml(q.keywords)}" /></p>
+    <button id="btn-save-edit">保存修改</button>
+  </div>`
+
+        document.getElementById('btn-save-edit').addEventListener('click', ()=>{
+            // 更新 bank 数据
+            q.answer = document.getElementById('edit-answer').value
+            q.exam_points = document.getElementById('edit-exam_points').value
+            q.followups = document.getElementById('edit-followups').value
+            q.keywords = document.getElementById('edit-keywords').value
+            // 同步 searchText
+            q.searchText = (q.title + ' ' + q.answer + ' ' + q.exam_points + ' ' + q.followups + ' ' + q.keywords).toLowerCase()
+            // 重新渲染表格
+            applyFilters()
+            alert('修改已保存到本地内存，可导出 JSON。')
+        })
+    }
+
+    // 导出 JSON
+    document.getElementById('btnExport').addEventListener('click', ()=>{
+        const out = bank.map(i=>({
+            id:i.id,module:i.module,difficulty:i.difficulty,type:i.type,title:i.title,
+            answer:i.answer,exam_points:i.exam_points,followups:i.followups,keywords:i.keywords
+        }))
+        const blob = new Blob([JSON.stringify(out,null,2)],{type:'application/json'})
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'edited_questions.json'
+        a.click()
+        URL.revokeObjectURL(url)
+    })
+
+// 绑定过滤事件
+        ['filter-module','filter-difficulty','filter-type'].forEach(id=>{
+        document.getElementById(id).addEventListener('change', applyFilters)
+    })
+    document.getElementById('filter-keyword').addEventListener('input', applyFilters)
+
+
+
+    fetch('interview_bank_sample.json')
+        .then(res => res.json())
+        .then(data => loadFromArray(data))
+        .catch(err => alert('加载 JSON 失败: ' + err.message))
+
+</script>
+</body>
+</html>
