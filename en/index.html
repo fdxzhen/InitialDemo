@@ -3,86 +3,68 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Sentence TTS — Paste & Play</title>
+    <title>Sentence-by-sentence TTS</title>
     <style>
-        :root{--bg:#f7f7fb;--card:#fff;--accent:#0b74ff}
-        body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:18px;background:var(--bg);color:#111}
-        .wrap{max-width:900px;margin:0 auto}
-        .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 8px 24px rgba(20,20,40,0.06)}
-        h1{font-size:18px;margin:0 0 12px}
-        .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-        textarea{width:100%;min-height:160px;padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:14px}
+        body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:20px;color:#111;background:#f7f7fb}
+        .container{max-width:800px;margin:0 auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 6px 20px rgba(20,20,40,0.06)}
+        h1{font-size:20px;margin:0 0 12px}
+        .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
         button{padding:8px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer}
-        button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+        button.primary{background:#0b74ff;color:#fff;border-color:#0b74ff}
         button.danger{background:#ff5c5c;color:#fff;border-color:#ff5c5c}
-        .controls{display:flex;gap:8px;align-items:center}
-        .lines{margin-top:12px}
-        .line{padding:10px;border-radius:8px;border:1px solid transparent;margin-bottom:8px;cursor:pointer;background:linear-gradient(180deg,transparent,transparent)}
+        select,input[type=range]{padding:6px;border-radius:8px;border:1px solid #ddd}
+        .lines{margin-top:12px;white-space:pre-wrap}
+        .line{padding:10px;border-radius:8px;border:1px dashed transparent;margin-bottom:8px;cursor:pointer}
         .line:hover{background:#f2f8ff}
-        .line.playing{background:var(--accent);color:#fff;border-color:rgba(255,255,255,0.08)}
-        label{font-size:13px;color:#444;margin-right:6px}
-        .hint{font-size:13px;color:#666;margin-top:8px}
-        .small{font-size:13px;color:#444}
+        .line.playing{background:#0b74ff;color:#fff;border-color:#0b74ff}
+        .meta{font-size:13px;color:#555;margin-top:8px}
     </style>
 </head>
 <body>
-<div class="wrap">
-    <div class="card">
-        <h1>Paste English text and play sentence-by-sentence TTS</h1>
+<div class="container">
+    <h1>Sentence-by-sentence TTS — Click a line to speak</h1>
 
-        <div class="hint">Paste any English text below (you can paste raw HTML body text). Click <strong>Parse</strong> to split the content into sentences by punctuation. Click a sentence to play it, or use <strong>Play All</strong>.</div>
+    <div class="controls">
+        <button id="playAll" class="primary">Play All (line by line)</button>
+        <button id="stop" class="danger">Stop</button>
 
-        <div style="margin-top:12px">
-            <textarea id="input">Paste your English text here. For example: Hello! This is sentence one. Here's sentence two? And here's sentence three.</textarea>
-        </div>
+        <label for="voiceSelect">Voice:</label>
+        <select id="voiceSelect"></select>
 
-        <div class="row" style="margin-top:10px">
-            <div class="controls">
-                <button id="parseBtn" class="primary">Parse</button>
-                <button id="playAll" class="primary">Play All</button>
-                <button id="stopBtn" class="danger">Stop</button>
-            </div>
+        <label for="rate">Rate</label>
+        <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1" />
+        <span id="rateLabel">1.0</span>
 
-            <label for="voiceSelect">Voice</label>
-            <select id="voiceSelect"></select>
-
-            <label for="rate">Rate</label>
-            <input id="rate" type="range" min="0.6" max="2" step="0.1" value="1" />
-            <span id="rateLabel">1</span>
-
-            <label for="pitch">Pitch</label>
-            <input id="pitch" type="range" min="0.6" max="2" step="0.1" value="1" />
-            <span id="pitchLabel">1</span>
-        </div>
-
-        <div class="small hint">Splitting rules: the parser groups text into sentences by punctuation marks (. ! ? ; :) and newlines. It tries to avoid breaking at common abbreviations but may not be perfect for all inputs.</div>
-
-        <div id="lines" class="lines" aria-live="polite" style="margin-top:12px">
-            <!-- parsed lines will appear here -->
-        </div>
-
+        <label for="pitch">Pitch</label>
+        <input id="pitch" type="range" min="0.5" max="2" step="0.1" value="1" />
+        <span id="pitchLabel">1.0</span>
     </div>
+
+    <div class="meta">Tip: Paste any English text into the box below and it will split automatically by punctuation and line breaks.</div>
+
+    <textarea id="inputText" rows="6" style="width:100%;margin-top:8px;padding:10px;border-radius:8px;border:1px solid #ccc;"></textarea>
+    <button id="processText" style="margin-top:8px;">Process Text</button>
+
+    <div class="lines" id="lines"></div>
 </div>
 
 <script>
-    // Basic sentence-by-sentence TTS page
-
     const synth = window.speechSynthesis;
-    const input = document.getElementById('input');
-    const parseBtn = document.getElementById('parseBtn');
-    const linesContainer = document.getElementById('lines');
     const voiceSelect = document.getElementById('voiceSelect');
-    const playAllBtn = document.getElementById('playAll');
-    const stopBtn = document.getElementById('stopBtn');
     const rateInput = document.getElementById('rate');
     const pitchInput = document.getElementById('pitch');
     const rateLabel = document.getElementById('rateLabel');
     const pitchLabel = document.getElementById('pitchLabel');
+    const playAllBtn = document.getElementById('playAll');
+    const stopBtn = document.getElementById('stop');
+    const linesContainer = document.getElementById('lines');
+    const inputText = document.getElementById('inputText');
+    const processBtn = document.getElementById('processText');
 
     let voices = [];
-    let playAllRunning = false;
     let currentUtterance = null;
     let playingIndex = -1;
+    let playAllRunning = false;
 
     function populateVoices(){
         voices = synth.getVoices().sort((a,b)=> a.name.localeCompare(b.name));
@@ -94,110 +76,78 @@
             voiceSelect.appendChild(opt);
         });
     }
+
     populateVoices();
-    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoices;
+    }
 
     function speakText(text, {onend} = {}){
-        if(!('speechSynthesis' in window)){
-            alert('Your browser does not support SpeechSynthesis API.');
-            return;
-        }
         synth.cancel();
         const u = new SpeechSynthesisUtterance(text);
-        const v = voices[voiceSelect.value] || null;
-        if(v) u.voice = v;
+        const selectedVoice = voices[voiceSelect.value] || null;
+        if(selectedVoice) u.voice = selectedVoice;
         u.rate = parseFloat(rateInput.value);
         u.pitch = parseFloat(pitchInput.value);
-        u.onend = (e)=>{ currentUtterance = null; if(typeof onend === 'function') onend(e); };
-        u.onerror = (e)=>{ currentUtterance = null; if(typeof onend === 'function') onend(e); };
+        u.onend = ()=>{ currentUtterance = null; if(typeof onend==='function') onend(); };
+        u.onerror = ()=>{ currentUtterance = null; if(typeof onend==='function') onend(); };
         currentUtterance = u;
         synth.speak(u);
-        return u;
-    }
-
-    function clearLines(){
-        linesContainer.innerHTML = '';
-    }
-
-    // Sentence splitter: removes tags, normalizes spaces, then extracts sentence-like chunks.
-    function splitIntoSentences(text){
-        if(!text) return [];
-        const tmp = text.replace(/<[^>]+>/g, ' ');           // strip tags
-        const normalized = tmp.replace(/\s+/g, ' ').trim();
-        if(!normalized) return [];
-
-        // capture segments that end with punctuation (.!?;:) or end of string
-        const re = /[^.!?;:]+[.!?;:]?(?:["']+)?/g;
-        const matches = normalized.match(re) || [];
-        const filtered = matches.map(s=>s.trim()).filter(s => s.length>0 && /[a-zA-Z0-9]/.test(s));
-        return filtered;
-    }
-
-    function renderLines(sentences){
-        clearLines();
-        sentences.forEach((s, idx)=>{
-            const el = document.createElement('div');
-            el.className = 'line';
-            el.textContent = s;
-            el.tabIndex = 0;
-            el.addEventListener('click', ()=>{
-                playAllRunning = false;
-                setPlaying(idx);
-                speakText(s, {onend: ()=> setPlaying(-1)});
-            });
-            el.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); el.click(); } });
-            linesContainer.appendChild(el);
-        });
     }
 
     function setPlaying(index){
-        const nodes = Array.from(linesContainer.children);
-        nodes.forEach((n,i)=> n.classList.toggle('playing', i===index));
+        const lines = Array.from(linesContainer.children);
+        lines.forEach((el,i)=> el.classList.toggle('playing', i===index));
         playingIndex = index;
     }
 
-    parseBtn.addEventListener('click', ()=>{
-        const text = input.value;
-        const sentences = splitIntoSentences(text);
-        if(sentences.length === 0){
-            alert('No sentences detected. Please paste some English text.');
-            return;
-        }
-        renderLines(sentences);
-    });
-
-    playAllBtn.addEventListener('click', async ()=>{
+    async function playAll(){
+        const lines = Array.from(linesContainer.children);
         if(playAllRunning) return;
-        const nodes = Array.from(linesContainer.children);
-        if(nodes.length === 0){
-            alert('No lines to play. Please paste text and press Parse first.');
-            return;
-        }
         playAllRunning = true;
-        for(let i=0;i<nodes.length;i++){
+        for(let i=0;i<lines.length;i++){
             if(!playAllRunning) break;
             setPlaying(i);
-            await new Promise(resolve => { speakText(nodes[i].textContent, {onend: resolve}); });
-            await new Promise(r=>setTimeout(r, 200));
+            await new Promise(resolve=>{
+                speakText(lines[i].textContent, {onend: resolve});
+            });
+            await new Promise(r=>setTimeout(r,250));
         }
         setPlaying(-1);
         playAllRunning = false;
-    });
+    }
+
+    playAllBtn.addEventListener('click', playAll);
 
     stopBtn.addEventListener('click', ()=>{
-        playAllRunning = false;
-        speechSynthesis.cancel();
+        playAllRunning=false;
+        synth.cancel();
         setPlaying(-1);
     });
 
-    rateInput.addEventListener('input', ()=> rateLabel.textContent = rateInput.value);
-    pitchInput.addEventListener('input', ()=> pitchLabel.textContent = pitchInput.value);
+    rateInput.addEventListener('input', ()=> rateLabel.textContent=rateInput.value);
+    pitchInput.addEventListener('input', ()=> pitchLabel.textContent=pitchInput.value);
 
-    // convenience: Ctrl+Enter to parse
-    input.addEventListener('keydown', (e)=>{ if(e.ctrlKey && e.key==='Enter'){ parseBtn.click(); } });
-
-    // auto-parse default content on load
-    window.addEventListener('load', ()=> parseBtn.click());
+    processBtn.addEventListener('click', ()=>{
+        const raw = inputText.value.trim();
+        if(!raw) return;
+        const sentences = raw.split(/(?<=[.!?])\s+|\r?\n+/).filter(Boolean);
+        linesContainer.innerHTML = '';
+        sentences.forEach((s)=>{
+            const div=document.createElement('div');
+            div.className='line';
+            div.textContent=s.trim();
+            div.tabIndex=0;
+            div.addEventListener('click',()=>{
+                playAllRunning=false;
+                const index=Array.from(linesContainer.children).indexOf(div);
+                setPlaying(index);
+                speakText(div.textContent,{onend:()=>setPlaying(-1)});
+            });
+            div.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();div.click();}});
+            linesContainer.appendChild(div);
+        });
+    });
 </script>
 </body>
 </html>
