@@ -5,9 +5,9 @@
     "difficulty": "初级",
     "type": "问答题",
     "title": "Java 中 == 和 equals() 有什么区别？",
-    "answer": "== 比较的是引用地址或基本类型值；equals() 比较的是对象内容，除非被重写。",
-    "exam_points": "理解引用与值的区别，对象比较机制。",
-    "followups": "String 为什么推荐使用 equals()？重写 equals() 时需重写 hashCode() 吗？",
+    "answer": "== 比较的是两个变量在内存中的地址（引用）或基本类型的值；equals() 默认也是比较地址，但通常被类（如 String、Integer）重写，用于比较内容。底层原理：对象在 JVM 堆中有唯一引用地址，'==' 判断的是是否指向同一个堆对象，而 equals() 可以通过重写逻辑比较值相等。",
+    "exam_points": "理解引用与值的区别，对象比较机制（答出 == 比较地址，equals() 比较内容，并说明重写机制）。",
+    "followups": "String 为什么推荐使用 equals()？（因为 String 重写了 equals() 方法，比较的是字符序列内容）重写 equals() 时需重写 hashCode() 吗？（是，因为在 HashMap 等哈希容器中依赖 hashCode 保证一致性，否则会破坏哈希结构）",
     "keywords": "equals,==,引用,比较"
   },
   {
@@ -16,9 +16,9 @@
     "difficulty": "初级",
     "type": "问答题",
     "title": "Java 中有哪些基本数据类型？各占多少字节？",
-    "answer": "byte(1), short(2), int(4), long(8), float(4), double(8), char(2), boolean(1位)。",
-    "exam_points": "基本类型内存占用与范围。",
-    "followups": "为什么 char 是 2 字节？float 和 double 哪个精度高？",
+    "answer": "byte(1)、short(2)、int(4)、long(8)、float(4)、double(8)、char(2)、boolean(理论1位)。底层原理：这些类型直接存储在栈上，由 JVM 明确定义其位宽，跨平台保持一致（Java 的强类型与平台无关性体现）。",
+    "exam_points": "基本类型内存占用与范围（记住类型+字节数，知道 char 占 2 字节是因采用 UTF-16 编码）。",
+    "followups": "为什么 char 是 2 字节？（因为 Java 使用 UTF-16 编码，每个字符固定 16 位）float 和 double 哪个精度高？（double 使用 64 位存储，尾数位更多，精度更高）",
     "keywords": "基本类型,字节,内存,Java"
   },
   {
@@ -27,9 +27,9 @@
     "difficulty": "初级",
     "type": "问答题",
     "title": "final 关键字有什么作用？",
-    "answer": "final 可修饰变量、方法、类。变量不可重新赋值；方法不可被重写；类不可被继承。",
-    "exam_points": "不可变性、继承约束。",
-    "followups": "final 引用对象内容能变吗？final 与 immutability 区别？",
+    "answer": "final 可修饰变量、方法、类。变量：值不可再赋；方法：不可被子类重写；类：不可被继承。底层原理：JVM 会在字节码层面标记 final 修饰符，对变量在编译阶段直接替换常量值，提升性能并保证一致性。",
+    "exam_points": "不可变性、继承约束（记住三种修饰场景 + 编译期常量替换原理）。",
+    "followups": "final 引用对象内容能变吗？（能变，对象地址不变但内容可改）final 与 immutability 区别？（final 限制引用或继承，immutability 是对象内容不可改）",
     "keywords": "final,关键字,不可变,继承"
   },
   {
@@ -38,9 +38,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "什么是 Java 内存模型（JMM）？",
-    "answer": "JMM 定义了线程如何通过内存交互，主要包含主内存与工作内存的概念，解决可见性、有序性、原子性问题。",
-    "exam_points": "多线程内存可见性，happens-before 原则。",
-    "followups": "volatile 是如何保证可见性的？",
+    "answer": "JMM 定义了线程与主内存交互的规则。每个线程有自己的工作内存（本地缓存），通过主内存共享数据。JMM 解决三个核心问题：可见性、有序性、原子性。底层原理：通过 'happens-before' 规则、内存屏障（Memory Barrier）和 CPU 缓存一致性协议（MESI）来实现。",
+    "exam_points": "多线程内存可见性，happens-before 原则（能解释主内存与工作内存的关系）。",
+    "followups": "volatile 是如何保证可见性的？（通过内存屏障禁止指令重排，强制刷新线程工作内存到主内存）",
     "keywords": "JMM,内存模型,可见性,原子性"
   },
   {
@@ -49,9 +49,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "什么是装箱与拆箱？",
-    "answer": "装箱是将基本类型转换为包装类型，拆箱反之。Java 自动完成此过程，如 Integer i = 5; 实际调用 Integer.valueOf(5)。",
-    "exam_points": "自动装箱机制，缓存池。",
-    "followups": "Integer 缓存范围是多少？为何 128 比较结果不同？",
+    "answer": "装箱是将基本类型转换为包装类，如 int → Integer；拆箱相反。底层原理：编译器自动插入 Integer.valueOf(int) 或 intValue() 调用。JDK 对 [-128,127] 的 Integer 做缓存，避免频繁创建对象。",
+    "exam_points": "自动装箱机制，缓存池（理解编译器插入机制与缓存原理）。",
+    "followups": "Integer 缓存范围是多少？（[-128,127]）为何 128 比较结果不同？（超出缓存范围会创建新对象，引用地址不同）",
     "keywords": "装箱,拆箱,包装类,Integer缓存"
   },
   {
@@ -60,9 +60,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "String、StringBuilder、StringBuffer 区别？",
-    "answer": "String 不可变；StringBuilder 可变，非线程安全；StringBuffer 可变，线程安全（同步）。",
-    "exam_points": "可变性与线程安全。",
-    "followups": "为什么 String 被设计成不可变？",
+    "answer": "String 不可变；StringBuilder 可变、非线程安全；StringBuffer 可变、线程安全。底层原理：String 内部使用 final char[]（JDK9+ 为 byte[]），修改时新建对象；StringBuilder/StringBuffer 使用可扩容的数组 append 内容。",
+    "exam_points": "可变性与线程安全（说明底层 char[] 机制与同步差异）。",
+    "followups": "为什么 String 被设计成不可变？（保证线程安全、哈希缓存、类加载常量池共享）",
     "keywords": "String,StringBuilder,StringBuffer,线程安全"
   },
   {
@@ -71,9 +71,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "谈谈 Java 中的异常体系。",
-    "answer": "Throwable 分为 Error 和 Exception；Exception 又分 Checked 和 Unchecked。常见如 IOException、NullPointerException。",
-    "exam_points": "异常分类与处理机制。",
-    "followups": "为什么推荐捕获特定异常？",
+    "answer": "Throwable 是所有异常的父类，分为 Error（系统级不可恢复）和 Exception（可捕获处理）。Exception 又分 Checked（必须处理）和 Unchecked（RuntimeException）。底层原理：通过异常表（Exception Table）与栈展开机制（Stack Unwinding）实现。",
+    "exam_points": "异常分类与处理机制（能说出继承结构 + Checked/Unchecked 区别）。",
+    "followups": "为什么推荐捕获特定异常？（精准处理，避免吞掉系统错误）",
     "keywords": "异常,Error,Exception,Checked"
   },
   {
@@ -82,9 +82,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "HashMap 的底层实现原理？",
-    "answer": "JDK1.8 采用数组 + 链表 + 红黑树结构。通过 key 的 hashCode 定位桶，解决冲突使用链表或树化。",
-    "exam_points": "哈希算法、负载因子、扩容机制。",
-    "followups": "HashMap 在多线程下为什么不安全？ConcurrentHashMap 如何优化？",
+    "answer": "JDK1.8 后 HashMap 采用数组 + 链表 + 红黑树结构。key 的 hashCode 经扰动函数计算后确定桶位置；冲突时形成链表，当链表长度超过 8 转为红黑树。底层原理：通过 (n - 1) & hash 快速定位索引，扩容为 2 倍时保证索引重映射效率。",
+    "exam_points": "哈希算法、负载因子、扩容机制（能说明数组+链表+红黑树结构及 rehash 机制）。",
+    "followups": "HashMap 在多线程下为什么不安全？（扩容时链表可能形成环）ConcurrentHashMap 如何优化？（分段锁或 CAS + Node 数组实现线程安全）",
     "keywords": "HashMap,底层结构,红黑树,哈希冲突"
   },
   {
@@ -93,9 +93,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "ArrayList 与 LinkedList 区别？",
-    "answer": "ArrayList 基于数组，随机访问快；LinkedList 基于双向链表，插入删除快；ArrayList 扩容需复制数组。",
-    "exam_points": "集合结构与性能差异。",
-    "followups": "如何选择使用 ArrayList 或 LinkedList？",
+    "answer": "ArrayList 基于动态数组，随机访问快（O(1)），插入删除慢（需移动元素）；LinkedList 基于双向链表，插入删除快（O(1)），但随机访问慢（O(n)）。底层原理：ArrayList 连续内存 + 扩容1.5倍；LinkedList 每节点含前后引用。",
+    "exam_points": "集合结构与性能差异（能说出底层结构与时间复杂度）。",
+    "followups": "如何选择使用 ArrayList 或 LinkedList？（读多用 ArrayList，改多用 LinkedList；但 LinkedList 内存开销更大）",
     "keywords": "ArrayList,LinkedList,集合,性能"
   },
   {
@@ -104,9 +104,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "谈谈 Java 中的多态。",
-    "answer": "多态指同一方法在不同对象上表现出不同行为，通过继承与重写实现。运行时根据实际类型调用方法。",
-    "exam_points": "面向对象三大特性之一。",
-    "followups": "多态与重载的区别？",
+    "answer": "多态是面向对象三大特性之一，指同一方法在不同对象上表现出不同行为。实现方式包括继承 + 方法重写（Override）。底层原理：JVM 通过虚方法表（vtable）在运行时根据实际对象类型调用对应方法。",
+    "exam_points": "面向对象三大特性之一（能说出运行时绑定机制与 vtable 原理）。",
+    "followups": "多态与重载的区别？（多态是运行时行为；重载是编译期静态分派）",
     "keywords": "多态,重写,继承,Java OOP"
   },
   {
@@ -115,9 +115,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "ArrayList 和 LinkedList 有什么区别？",
-    "answer": "ArrayList 基于动态数组实现，支持随机访问，插入删除慢；LinkedList 基于双向链表，插入删除快但随机访问慢。",
-    "exam_points": "底层数据结构、时间复杂度、使用场景",
-    "followups": "如果频繁在中间插入元素，选择哪个集合更合适？",
+    "answer": "ArrayList 基于动态数组实现，底层是 Object[]，支持随机访问（O(1)）；插入删除时需移动大量元素（O(n)）。LinkedList 基于双向链表，每个节点包含前后指针，插入删除快（O(1)），但随机访问慢（O(n)）。底层原理：ArrayList 在扩容时会复制数组（默认1.5倍），而 LinkedList 通过节点链接维护结构。",
+    "exam_points": "底层数据结构、时间复杂度、使用场景（能正确指出数组 vs 链表结构及对应复杂度）。",
+    "followups": "如果频繁在中间插入元素，选择哪个集合更合适？（LinkedList，因为插入只需调整节点指针，不需要移动元素）",
     "keywords": "ArrayList,LinkedList,集合,性能"
   },
   {
@@ -126,9 +126,9 @@
     "difficulty": "较难",
     "type": "问答题",
     "title": "HashMap 的底层结构是什么？JDK 1.8 之后做了哪些优化？",
-    "answer": "底层是数组 + 链表 + 红黑树。JDK 1.8 之后当链表长度超过阈值（8）且数组容量大于 64 时，链表转换为红黑树以提升查询效率。",
-    "exam_points": "HashMap 底层结构、红黑树引入原因、时间复杂度优化",
-    "followups": "红黑树在极端情况下的性能如何？为什么不用 AVL 树？",
+    "answer": "底层是数组 + 链表 + 红黑树。JDK 1.8 之后引入红黑树优化，当链表长度超过阈值（8）且容量大于 64 时转为红黑树，提高查找效率。底层原理：通过扰动函数 (hash ^ (hash >>> 16)) 计算桶索引，减少哈希碰撞。红黑树保证查找时间复杂度从 O(n) 降为 O(log n)。",
+    "exam_points": "HashMap 底层结构、红黑树引入原因、时间复杂度优化（能讲清楚从链表到红黑树的条件与优化点）。",
+    "followups": "红黑树在极端情况下的性能如何？为什么不用 AVL 树？（红黑树最坏情况 O(log n)，但插入删除更快，因为旋转次数少；AVL 树更平衡但插入代价高，不适合高并发写场景）",
     "keywords": "HashMap,红黑树,底层结构,性能"
   },
   {
@@ -137,9 +137,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "如何实现线程安全的 List？",
-    "answer": "可以使用 Collections.synchronizedList(new ArrayList<>()) 或使用 CopyOnWriteArrayList。",
-    "exam_points": "线程安全集合、并发读写特性、适用场景",
-    "followups": "CopyOnWriteArrayList 的写时复制机制有哪些优缺点？",
+    "answer": "可以使用 Collections.synchronizedList(new ArrayList<>()) 或使用 CopyOnWriteArrayList。前者通过 synchronized 包装方法，后者通过写时复制实现并发读安全。底层原理：CopyOnWriteArrayList 在写入时复制底层数组，新数组替换旧数组，读操作不加锁。",
+    "exam_points": "线程安全集合、并发读写特性、适用场景（能区分 synchronizedList 与 CopyOnWriteArrayList 实现机制）。",
+    "followups": "CopyOnWriteArrayList 的写时复制机制有哪些优缺点？（优点：读性能高、无锁；缺点：写开销大、占用内存高，不适合频繁写场景）",
     "keywords": "线程安全,CopyOnWriteArrayList,Collections,同步"
   },
   {
@@ -148,9 +148,9 @@
     "difficulty": "较难",
     "type": "问答题",
     "title": "HashSet 是如何保证元素不重复的？",
-    "answer": "HashSet 底层基于 HashMap，通过 key 的唯一性（hashCode + equals 判断）保证元素不重复。",
-    "exam_points": "HashSet 与 HashMap 关系、hashCode 与 equals 契约",
-    "followups": "如果重写 equals 但不重写 hashCode 会发生什么？",
+    "answer": "HashSet 底层使用 HashMap 实现，所有元素都作为 key 存储，value 为常量 Object。通过 key 的 hashCode() 和 equals() 判断唯一性。底层原理：当插入元素时，若计算出的哈希桶位置已有相同 key（hashCode 相同且 equals 为 true），则拒绝插入。",
+    "exam_points": "HashSet 与 HashMap 关系、hashCode 与 equals 契约（能说明 HashSet 基于 HashMap 并依赖 key 唯一性）。",
+    "followups": "如果重写 equals 但不重写 hashCode 会发生什么？（相等对象可能落入不同桶，导致集合中出现重复元素，违背 Set 语义）",
     "keywords": "HashSet,HashMap,哈希,去重"
   },
   {
@@ -159,9 +159,9 @@
     "difficulty": "较难",
     "type": "问答题",
     "title": "ConcurrentHashMap 与 Hashtable 的区别是什么？",
-    "answer": "Hashtable 使用同步锁锁住整个表，性能较差；ConcurrentHashMap 采用分段锁或 CAS + synchronized 机制，支持更高并发。",
-    "exam_points": "并发控制机制、锁粒度、性能差异",
-    "followups": "为什么 ConcurrentHashMap 在 JDK 8 中放弃了分段锁？",
+    "answer": "Hashtable 使用 synchronized 锁整个表，导致高并发性能低；ConcurrentHashMap 在 JDK 7 使用分段锁（Segment），JDK 8 后改用 CAS + synchronized 实现局部锁。底层原理：通过 Node 数组 + CAS + synchronized 锁粒度更细，减少竞争。",
+    "exam_points": "并发控制机制、锁粒度、性能差异（能指出分段锁与 CAS 的演进）。",
+    "followups": "为什么 ConcurrentHashMap 在 JDK 8 中放弃了分段锁？（Segment 增加内存开销，CAS + synchronized 在 Node 级别锁粒度更细，性能更高）",
     "keywords": "ConcurrentHashMap,Hashtable,线程安全,性能"
   },
   {
@@ -170,9 +170,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "TreeMap 是如何保证有序的？",
-    "answer": "TreeMap 基于红黑树实现，按照 key 的自然顺序或 Comparator 自定义顺序排序。",
-    "exam_points": "红黑树结构、排序机制、Comparator 应用",
-    "followups": "如何实现一个倒序排列的 TreeMap？",
+    "answer": "TreeMap 基于红黑树实现，按照 key 的自然顺序或 Comparator 提供的顺序排序。底层原理：红黑树是一种自平衡二叉查找树，每次插入或删除时通过旋转和变色保持平衡，保证 O(log n) 查找效率。",
+    "exam_points": "红黑树结构、排序机制、Comparator 应用（能说明 TreeMap 的排序来源和红黑树结构）。",
+    "followups": "如何实现一个倒序排列的 TreeMap？（使用 TreeMap<>(Collections.reverseOrder()) 或自定义 Comparator 实现逆序）",
     "keywords": "TreeMap,红黑树,排序,Comparator"
   },
   {
@@ -181,9 +181,9 @@
     "difficulty": "较难",
     "type": "问答题",
     "title": "HashMap 是如何解决哈希冲突的？",
-    "answer": "通过链地址法解决，即数组 + 链表结构；JDK 1.8 后链表过长时转为红黑树。",
-    "exam_points": "冲突解决机制、负载因子、扩容机制",
-    "followups": "HashMap 扩容时为什么需要重新计算 hash？",
+    "answer": "通过链地址法（Separate Chaining）解决冲突，桶中存储链表节点。当链表过长（超过8）且容量大于64时转为红黑树。底层原理：哈希冲突不可避免，通过链表或树化结构分散冲突影响，扩容时重新计算桶位置。",
+    "exam_points": "冲突解决机制、负载因子、扩容机制（答出链表+红黑树机制及 rehash 原理）。",
+    "followups": "HashMap 扩容时为什么需要重新计算 hash？（因为容量改变后桶数量变化，hash 索引计算公式 (n-1)&hash 需要重新定位元素位置）",
     "keywords": "HashMap,哈希冲突,底层实现,扩容"
   },
   {
@@ -192,9 +192,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "当需要去重但保留插入顺序时，你会使用哪个集合？",
-    "answer": "LinkedHashSet，在 HashSet 基础上增加双向链表维护插入顺序。",
-    "exam_points": "有序去重、HashSet 扩展、链表维护顺序",
-    "followups": "LinkedHashMap 与 LinkedHashSet 在实现上的关系？",
+    "answer": "LinkedHashSet。它在 HashSet 基础上增加了双向链表来维护元素插入顺序。底层原理：继承自 HashSet，使用 LinkedHashMap 维护 Entry 顺序，每个节点维护 before 和 after 指针。",
+    "exam_points": "有序去重、HashSet 扩展、链表维护顺序（能指出 LinkedHashSet 基于 LinkedHashMap）。",
+    "followups": "LinkedHashMap 与 LinkedHashSet 在实现上的关系？（LinkedHashSet 实际调用 LinkedHashMap 存储元素，只用 key 保留顺序）",
     "keywords": "LinkedHashSet,插入顺序,去重,HashSet"
   },
   {
@@ -203,9 +203,9 @@
     "difficulty": "初级",
     "type": "问答题",
     "title": "如何将数组转换为 List？",
-    "answer": "使用 Arrays.asList(array) 或 Stream.of(array).collect(Collectors.toList())。",
-    "exam_points": "集合与数组转换、asList 限制",
-    "followups": "Arrays.asList 返回的 List 可以添加元素吗？为什么？",
+    "answer": "可用 Arrays.asList(array) 或 Stream.of(array).collect(Collectors.toList())。底层原理：asList 返回一个固定大小的内部类 ArrayList（非 java.util.ArrayList），直接引用原数组。",
+    "exam_points": "集合与数组转换、asList 限制（答出固定大小与共享引用问题）。",
+    "followups": "Arrays.asList 返回的 List 可以添加元素吗？为什么？（不可以，因为底层是固定大小的数组包装，调用 add() 会抛 UnsupportedOperationException）",
     "keywords": "数组,List,转换,Arrays.asList"
   },
   {
@@ -214,9 +214,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "为什么 HashMap 的初始容量最好是 2 的幂？",
-    "answer": "因为哈希寻址时采用 (n-1)&hash 计算索引，2 的幂能保证哈希分布均匀，减少冲突。",
-    "exam_points": "哈希分布原理、位运算优化",
-    "followups": "如果不是 2 的幂，哈希分布会怎样？",
+    "answer": "因为哈希寻址采用 (n-1)&hash 计算索引，n 为数组长度。若 n 是 2 的幂，可确保所有位都被利用，使哈希分布更均匀。底层原理：位运算比取模运算更高效（O(1)），且减少冲突。",
+    "exam_points": "哈希分布原理、位运算优化（能说明 2 的幂与 (n-1)&hash 的对应关系）。",
+    "followups": "如果不是 2 的幂，哈希分布会怎样？（索引分布不均匀，某些桶会被过度使用，增加冲突概率）",
     "keywords": "HashMap,初始容量,哈希分布,位运算"
   },
   {
@@ -225,10 +225,10 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "乐观锁和悲观锁有什么区别？",
-    "answer": "悲观锁假设会发生冲突，操作前加锁，如synchronized和ReentrantLock；乐观锁假设不会发生冲突，操作时检测，如CAS和版本号机制。悲观锁适合写多读少场景，乐观锁适合读多写少场景。",
-    "exam_points": "锁策略、性能差异、适用场景、CAS原理",
-    "followups": "在高并发读多写少场景中，为什么乐观锁比悲观锁性能高？",
-    "keywords": "乐观锁,悲观锁,CAS,线程安全,锁"
+    "answer": "悲观锁假设会发生冲突，操作前先加锁，常见实现如 synchronized（基于对象监视器Monitor，底层通过JVM指令 monitorenter/monitorexit）和 ReentrantLock（基于AQS的独占锁）。乐观锁假设不会冲突，操作时先比较版本再更新，典型实现是 CAS（Compare-And-Swap），底层依赖 CPU 原子指令（如 x86 的 CMPXCHG）。乐观锁无需阻塞，性能更高，适合读多写少的场景；悲观锁需要上下文切换与锁竞争，适合写多的场景。",
+    "exam_points": "锁策略（悲观锁先加锁、乐观锁检测冲突）、性能差异（阻塞 vs 非阻塞）、适用场景（写多用悲观锁，读多用乐观锁）、CAS原理（底层原子指令 + 内存屏障）",
+    "followups": "在高并发读多写少场景中，为什么乐观锁比悲观锁性能高？（因为乐观锁避免了加锁阻塞，基于CAS的自旋机制无上下文切换成本；冲突概率低时重试开销远低于锁竞争带来的线程挂起与唤醒成本）",
+    "keywords": "乐观锁,悲观锁,CAS,线程安全,锁,原子指令,性能"
   },
   {
     "id": "CON-002",
@@ -236,10 +236,10 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "CAS（Compare And Swap）原理是什么？",
-    "answer": "CAS 是一种乐观锁实现机制，通过比较内存中的值与期望值，如果相等则更新，否则重试。Java中通过Atomic系列类实现，底层依赖CPU原子指令，如x86的CMPXCHG。",
-    "exam_points": "乐观锁实现,ABA问题,Atomic类,CPU原子操作",
-    "followups": "CAS 会出现什么问题？如何解决ABA问题？",
-    "keywords": "CAS,Atomic,ABA问题,乐观锁,原子操作"
+    "answer": "CAS 是一种乐观锁机制，通过比较内存中值与期望值是否相等来决定是否更新，若不相等则自旋重试。Java 的 Atomic 包（如 AtomicInteger）通过 Unsafe 类的 native 方法调用 CPU 的原子指令（如 x86 的 CMPXCHG 或 ARM 的 LDREX/STREX）来实现。底层依靠 CPU 的总线锁（Lock 前缀）和内存屏障，确保多核一致性。",
+    "exam_points": "乐观锁实现（CAS 比较更新）、ABA问题（旧值被改回）、Atomic类底层（Unsafe + native）、CPU原子操作（Lock CMPXCHG 指令实现原子性）",
+    "followups": "CAS 会出现什么问题？如何解决ABA问题？（CAS 存在 ABA 问题，即变量值被修改再恢复，版本号机制或 AtomicStampedReference 可解决；另一个问题是自旋时间过长导致 CPU 占用高，可结合自适应退避算法优化）",
+    "keywords": "CAS,Atomic,Unsafe,ABA问题,CPU指令,内存屏障,乐观锁"
   },
   {
     "id": "CON-003",
@@ -247,10 +247,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java 内存模型（JMM）核心内容是什么？",
-    "answer": "JMM定义了Java中线程与主内存交互的规则，保证在多线程环境下的可见性、原子性、有序性。关键概念包括volatile、happens-before原则、重排序与内存屏障。",
-    "exam_points": "可见性、原子性、有序性、volatile, happens-before,重排序",
-    "followups": "volatile 能保证原子性吗？happens-before 原则如何保证线程安全？",
-    "keywords": "JMM,volatile,内存模型,线程安全,happens-before"
+    "answer": "Java 内存模型（JMM）定义了线程与主内存的交互规则。每个线程都有本地工作内存（类似CPU缓存），与主内存保持数据一致性。关键特性包括：可见性（通过volatile和synchronized实现内存屏障刷新）、有序性（通过happens-before关系定义先后顺序）、原子性（通过锁或原子操作保证）。底层通过CPU的缓存一致性协议（MESI）和内存屏障（Memory Barrier）指令保证执行顺序。",
+    "exam_points": "可见性（主内存同步机制）、原子性（锁/CAS保证）、有序性（内存屏障 + happens-before）、volatile（读写时插入内存屏障，防止指令重排）",
+    "followups": "volatile 能保证原子性吗？happens-before 原则如何保证线程安全？（volatile 仅保证可见性和有序性，不保证复合操作原子性；happens-before 定义了内存操作顺序，通过禁止重排与内存同步，使线程间数据变化可预测，从而保证安全发布）",
+    "keywords": "JMM,内存屏障,volatile,happens-before,可见性,原子性,有序性"
   },
   {
     "id": "CON-004",
@@ -258,9 +258,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Java 线程池有哪些核心组成？",
-    "answer": "核心组成包括：核心线程数corePoolSize、最大线程数maximumPoolSize、任务队列workQueue、线程存活时间keepAliveTime、线程工厂ThreadFactory、拒绝策略RejectedExecutionHandler。",
-    "exam_points": "线程池参数,任务队列,线程复用,拒绝策略,性能优化",
-    "followups": "如何选择合适的线程池类型来处理高并发任务？",
+    "answer": "线程池的核心组成包括：核心线程数 corePoolSize（线程池保持的最小线程数）、最大线程数 maximumPoolSize（允许的最大线程数）、任务队列 workQueue（存放等待执行任务的阻塞队列）、线程存活时间 keepAliveTime（非核心线程空闲超时回收）、线程工厂 ThreadFactory（自定义线程创建逻辑）、拒绝策略 RejectedExecutionHandler（任务超出线程池处理能力时的应对策略）。底层由 ThreadPoolExecutor 实现，通过 Worker 内部类和 CAS 控制线程生命周期与任务执行。",
+    "exam_points": "线程池参数(corePoolSize、maximumPoolSize、keepAliveTime 控制并发度与回收策略)、任务队列(BlockingQueue 决定任务缓存行为，如 LinkedBlockingQueue、SynchronousQueue)、线程复用(Worker 持续从队列取任务执行，减少频繁创建销毁线程开销)、拒绝策略(四种内置策略如 AbortPolicy、DiscardPolicy 等，用于溢出控制)、性能优化(根据任务类型选择 CPU密集型或IO密集型线程数)",
+    "followups": "如何选择合适的线程池类型来处理高并发任务？（CPU密集型任务：线程数≈CPU核数+1；IO密集型任务：线程数≈2×CPU核数或更多。可使用 Executors.newFixedThreadPool 或自定义 ThreadPoolExecutor，并根据任务执行特征调整队列类型与拒绝策略）",
     "keywords": "线程池,ThreadPoolExecutor,corePoolSize,maximumPoolSize,并发"
   },
   {
@@ -269,9 +269,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "ThreadLocal 的原理和应用场景是什么？",
-    "answer": "ThreadLocal为每个线程提供独立变量副本，通过Thread内部的ThreadLocalMap存储，实现线程隔离。常用于用户会话信息、数据库连接、事务管理等场景。",
-    "exam_points": "线程隔离,内存泄漏风险,应用场景,ThreadLocalMap",
-    "followups": "ThreadLocal使用不当可能导致什么问题？如何避免？",
+    "answer": "ThreadLocal 为每个线程提供独立的变量副本，底层通过 Thread 类中的 ThreadLocalMap 实现。每个 Thread 都维护一个独立的 Map，以 ThreadLocal 对象为 key，存储当前线程的局部变量值。这种机制实现了线程间变量隔离，避免了多线程访问共享变量时的同步开销。常用于保存用户上下文、数据库连接、事务对象等需要线程独立性的场景。底层结构采用弱引用（WeakReference）防止内存泄漏，但若未清理过期 Entry 仍可能导致内存无法释放。",
+    "exam_points": "线程隔离(ThreadLocalMap为每个线程维护独立副本)、内存泄漏风险(ThreadLocal为弱引用但value为强引用，若未remove易泄漏)、应用场景(保存用户会话、数据库连接、线程上下文信息)、ThreadLocalMap(Thread类维护的Map结构存储ThreadLocal与value键值对)",
+    "followups": "ThreadLocal使用不当可能导致什么问题？如何避免？（可能导致内存泄漏：ThreadLocalMap中的Entry使用弱引用key但value为强引用，线程池复用时旧value无法释放。解决方法：手动调用ThreadLocal.remove()清理；避免使用静态ThreadLocal；在线程执行完毕后清理线程上下文）",
     "keywords": "ThreadLocal,线程隔离,并发,内存泄漏,线程安全"
   },
   {
@@ -280,9 +280,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java 并发容器有哪些？它们的特点是什么？",
-    "answer": "常见并发容器包括ConcurrentHashMap（分段锁/红黑树+CAS）、CopyOnWriteArrayList（写时复制）、ConcurrentLinkedQueue（非阻塞队列），它们通过分段锁或CAS保证线程安全。",
-    "exam_points": "线程安全容器,锁分段,CAS,非阻塞队列,CopyOnWrite",
-    "followups": "为什么写操作少、读操作多场景适合CopyOnWriteArrayList？",
+    "answer": "常见并发容器包括：ConcurrentHashMap（JDK8 采用CAS + synchronized 实现分段锁控制，底层Node + 红黑树结构）、CopyOnWriteArrayList（写时复制实现快照读，适合读多写少）、ConcurrentLinkedQueue（基于CAS的无锁队列，使用链表结构）。这些容器通过非阻塞算法或精细化锁实现线程安全，减少锁竞争。",
+    "exam_points": "线程安全容器(Concurrent包中的容器通过分段锁或CAS实现线程安全)、锁分段(ConcurrentHashMap中CAS + synchronized细粒度控制)、CAS(无锁原子操作提高并发性能)、非阻塞队列(ConcurrentLinkedQueue基于CAS实现无锁入队出队)、CopyOnWrite(读时无锁，写时复制避免读阻塞)",
+    "followups": "为什么写操作少、读操作多场景适合CopyOnWriteArrayList？（因为CopyOnWriteArrayList在写时复制整个数组，写代价高但读操作无需加锁，读性能极高，底层利用快照机制保证数据一致性）",
     "keywords": "并发容器,ConcurrentHashMap,CopyOnWriteArrayList,ConcurrentLinkedQueue,线程安全"
   },
   {
@@ -291,9 +291,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Atomic 原子类有哪些？适用场景是什么？",
-    "answer": "AtomicInteger、AtomicLong、AtomicReference等，通过CAS实现原子操作，适用于无锁并发计数、状态标记、引用更新等高并发场景。",
-    "exam_points": "CAS原理,原子操作,无锁设计,Atomic类使用",
-    "followups": "AtomicInteger 的 getAndIncrement 和 incrementAndGet 有何区别？",
+    "answer": "常见原子类包括：AtomicInteger、AtomicLong、AtomicReference、AtomicStampedReference等。它们底层通过CAS（Compare-And-Swap）和volatile实现无锁原子操作，避免传统锁带来的线程阻塞。适用于计数器、自增器、并发状态标识、原子引用更新等高并发场景。",
+    "exam_points": "CAS原理(比较期望值与当前值，匹配则更新)、原子操作(通过CPU原子指令CMPXCHG实现)、无锁设计(失败重试机制避免阻塞)、Atomic类使用(AtomicInteger用于计数，AtomicReference用于对象更新)",
+    "followups": "AtomicInteger 的 getAndIncrement 和 incrementAndGet 有何区别？（前者先返回旧值再自增，后者先自增再返回新值；底层都调用Unsafe的CAS实现原子更新）",
     "keywords": "AtomicInteger,AtomicLong,AtomicReference,CAS,原子操作"
   },
   {
@@ -302,9 +302,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "AQS（AbstractQueuedSynchronizer）原理是什么？",
-    "answer": "AQS是Java并发包核心框架，采用FIFO等待队列和状态标志state管理同步器。它支持独占锁（如ReentrantLock）和共享锁（如Semaphore），通过模板方法模式实现自定义同步器。",
-    "exam_points": "同步器实现,FIFO队列,独占锁与共享锁,模板方法",
-    "followups": "ReentrantLock 的公平锁和非公平锁是如何通过AQS实现的？",
+    "answer": "AQS是Java并发框架的核心抽象类，基于FIFO双向队列（CLH变体）管理线程同步。其核心是volatile的state状态字段，通过CAS修改。独占锁（如ReentrantLock）和共享锁（如Semaphore、CountDownLatch）都是基于AQS实现。AQS通过模板方法模式，让子类实现获取/释放逻辑，从而自定义同步器。",
+    "exam_points": "同步器实现(AQS是锁的基础框架)、FIFO队列(使用CLH队列管理等待线程)、独占锁与共享锁(控制state访问方式不同)、模板方法(AQS提供框架，子类实现具体同步逻辑)",
+    "followups": "ReentrantLock 的公平锁和非公平锁是如何通过AQS实现的？（公平锁通过队列顺序判断是否有前驱节点，若有则排队；非公平锁直接尝试CAS获取state，不关心等待队列，提升吞吐率）",
     "keywords": "AQS,ReentrantLock,同步器,独占锁,共享锁,并发"
   },
   {
@@ -313,9 +313,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "CompletableFuture 在并发中有什么用？",
-    "answer": "CompletableFuture 提供异步编程模型，可组合异步任务、处理依赖、支持异常处理。常用于多任务并行、回调处理和异步链式调用。",
-    "exam_points": "异步编程,任务组合,异常处理,线程调度,ForkJoinPool",
-    "followups": "thenCombine 和 thenCompose 的区别是什么？",
+    "answer": "CompletableFuture 提供基于异步任务的并发编程模型，支持任务依赖、组合、异常处理和异步链式调用。底层基于 ForkJoinPool 的工作窃取（Work-Stealing）线程池，提升CPU利用率。相比传统Future，它支持非阻塞回调（thenApply/thenAccept）和任务组合（thenCombine/thenCompose）。",
+    "exam_points": "异步编程(非阻塞异步执行任务)、任务组合(thenCombine合并结果，thenCompose串联任务)、异常处理(exceptionally/handle机制)、线程调度(基于ForkJoinPool工作窃取)、性能优化(避免线程阻塞提升并发度)",
+    "followups": "thenCombine 和 thenCompose 的区别是什么？（thenCombine是并行合并两个独立任务的结果，thenCompose是串行依赖，前一个结果作为下一个任务输入）",
     "keywords": "CompletableFuture,异步,并发,任务组合,线程池"
   },
   {
@@ -324,9 +324,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Synchronized 关键字的原理和常见面试题",
-    "answer": "Synchronized 是JVM层面的锁，依赖对象的monitor实现可重入锁，保证原子性和可见性。常见面试题包括锁升级（偏向锁、轻量锁、重量锁）、死锁场景、锁粒度选择。",
-    "exam_points": "锁实现原理,可重入性,锁升级,锁粒度,死锁",
-    "followups": "在高并发场景中，什么时候优先使用 ReentrantLock 而不是 synchronized？",
+    "answer": "Synchronized 是 JVM 层面的内置锁（monitor lock），依赖对象头的 Mark Word 实现锁的状态（偏向锁→轻量级锁→重量级锁）升级。进入 synchronized 块会调用 monitorenter，退出时 monitorexit。它保证原子性、可见性（通过内存屏障实现），但不支持锁中断与超时。底层通过对象头Mark Word与monitor关联。",
+    "exam_points": "锁实现原理(依赖对象头Mark Word存储锁信息)、可重入性(同一线程可重复获取锁)、锁升级(偏向锁→轻量级→重量级)、锁粒度(锁定对象或代码块影响性能)、死锁(互相持有资源循环等待)",
+    "followups": "在高并发场景中，什么时候优先使用 ReentrantLock 而不是 synchronized？（ReentrantLock 提供更强控制能力：可中断、可定时、公平锁选项，适合对锁粒度或性能要求高的场景）",
     "keywords": "synchronized,锁,并发,线程安全,死锁"
   },
   {
@@ -335,10 +335,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "深入理解Java虚拟机系列的核心内容是什么？",
-    "answer": "《深入理解Java虚拟机》系列深入讲解了JVM架构、类加载机制、内存模型、垃圾回收算法、性能优化、线程同步等内容，重点关注面试中高频考点。",
-    "exam_points": "JVM架构,类加载,内存模型,垃圾回收,性能优化",
-    "followups": "这本书在面试中最常被问到的知识点有哪些？",
-    "keywords": "Java虚拟机,JVM,面试,性能优化,垃圾回收"
+    "answer": "系统讲解了JVM运行机制，包括：1）类加载子系统的执行流程；2）运行时数据区的内存划分；3）GC算法底层实现与分代策略；4）JIT编译优化原理；5）性能调优工具链（如JConsole、VisualVM、jcmd）。以HotSpot虚拟机为核心，从字节码到执行引擎的全过程揭示JVM工作原理。",
+    "exam_points": "JVM架构（执行引擎+内存模型）, 类加载机制（双亲委派）, 垃圾回收算法（分代+标记整理）, 性能调优（GC日志分析）",
+    "followups": "面试常问如：GC算法区别、类加载机制、内存模型可见性问题、JVM调优参数。",
+    "keywords": "Java虚拟机,JVM,性能优化,GC,类加载"
   },
   {
     "id": "JVM-002",
@@ -346,10 +346,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java虚拟机-JVM内存区域有哪些？",
-    "answer": "JVM内存主要分为方法区（存放类元数据）、堆（存放对象实例）、栈（存放局部变量）、程序计数器（记录当前执行指令地址）和本地方法栈（Native方法调用）。",
-    "exam_points": "方法区,堆,栈,程序计数器,本地方法栈,内存分区",
-    "followups": "栈和堆的区别是什么？在Java对象创建过程中各内存区如何参与？",
-    "keywords": "Java虚拟机,内存区域,JVM,堆,栈,方法区"
+    "answer": "JVM运行时内存包括：1）方法区（存储类元数据、常量池、JIT编译代码）；2）堆（对象实例分配，GC管理的主要区域）；3）虚拟机栈（保存局部变量表、操作数栈、方法调用帧）；4）程序计数器（当前线程执行字节码行号）；5）本地方法栈（Native代码执行支持）。这些区域共同支持字节码解释与JIT编译。",
+    "exam_points": "方法区（类元数据）、堆（对象分配）、栈（方法调用栈帧）、PC寄存器（线程独立）、本地方法栈（JNI支持）",
+    "followups": "栈和堆的区别：栈是线程私有的，存储方法调用上下文；堆是共享内存，存储对象实例。对象创建时分配堆内存，引用在栈中保存。",
+    "keywords": "JVM,内存模型,堆,栈,方法区"
   },
   {
     "id": "JVM-003",
@@ -357,10 +357,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java虚拟机-JVM内存分配与回收策略原理是什么？",
-    "answer": "JVM堆内存分为新生代和老年代，采用分代收集策略。新生代多使用复制算法，老年代使用标记-清除或标记-整理，永久代或元空间存放类元数据。垃圾回收通过 Minor GC 和 Full GC 管理内存。",
-    "exam_points": "分代收集策略,新生代,老年代,垃圾回收算法,内存管理",
-    "followups": "为什么大对象会直接进入老年代？CMS和G1 GC有何不同？",
-    "keywords": "Java虚拟机,垃圾回收,内存分配,GC,分代收集"
+    "answer": "JVM堆分为新生代（Eden + Survivor区）和老年代，采用分代收集。新生代使用复制算法（From-To区交替复制），老年代使用标记-清除或标记-整理算法。对象年龄通过GC晋升规则（如经过多次Minor GC）决定进入老年代。Full GC由老年代和方法区联合触发。分配策略通过TLAB（线程本地分配缓冲）提升效率。",
+    "exam_points": "分代收集（新生代与老年代）、复制算法（Minor GC）、标记整理（Full GC）、TLAB机制（线程分配）、晋升规则（对象年龄）",
+    "followups": "大对象直接进入老年代是为了避免新生代复制成本；CMS与G1区别在于并发与Region分区管理策略。",
+    "keywords": "JVM,GC,内存分配,分代收集,TLAB"
   },
   {
     "id": "JVM-004",
@@ -368,10 +368,10 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Java虚拟机-常用VM参数有哪些？",
-    "answer": "常用VM参数包括：-Xms、-Xmx（堆大小），-XX:PermSize、-XX:MaxPermSize（永久代），-Xss（栈大小），-XX:+UseG1GC、-XX:+UseConcMarkSweepGC（GC策略），-XX:+PrintGCDetails（GC日志）。",
-    "exam_points": "堆和栈设置,GC策略,日志打印,性能调优",
-    "followups": "如何根据GC日志优化JVM性能？",
-    "keywords": "Java虚拟机,VM参数,堆,栈,G1GC,CMS"
+    "answer": "常用JVM参数包括：1）堆大小设置：-Xms / -Xmx；2）栈大小：-Xss；3）GC策略选择：-XX:+UseG1GC、-XX:+UseParallelGC；4）GC日志：-XX:+PrintGCDetails；5）性能调优：-XX:MetaspaceSize、-XX:+HeapDumpOnOutOfMemoryError；通过组合参数可精准控制内存分配与回收行为。",
+    "exam_points": "堆大小设置（Xms/Xmx）、GC策略（G1、Parallel）、日志分析（PrintGCDetails）、栈内存调优（Xss）",
+    "followups": "根据GC日志优化性能：分析Minor/Full GC频率、停顿时间、内存回收比率，调大新生代或切换G1可优化吞吐量。",
+    "keywords": "JVM参数,GC策略,性能调优,堆,栈"
   },
   {
     "id": "JVM-005",
@@ -379,10 +379,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java虚拟机-如何利用JDK自带命令行工具监控高并发虚拟机性能？",
-    "answer": "可以使用jstat、jmap、jstack、jconsole、jcmd等工具监控堆内存、GC活动、线程状态和类加载情况，从而分析高并发应用的性能瓶颈。",
-    "exam_points": "jstat,jmap,jstack,jconsole,jcmd,性能监控,线程分析",
-    "followups": "在百万级并发场景下，哪些JDK工具最有效？",
-    "keywords": "Java虚拟机,JDK工具,性能监控,线程分析,高并发"
+    "answer": "JDK提供多种命令行工具：jstat（监控GC与内存）、jstack（线程堆栈分析）、jmap（堆转储分析）、jcmd（统一命令接口）、jconsole（图形化监控）。底层原理通过JVMTI接口读取HotSpot内部运行数据，可监控堆、线程状态、锁等待等指标。",
+    "exam_points": "jstat（GC监控）、jstack（线程死锁分析）、jmap（内存快照）、jcmd（综合诊断）、JVMTI接口（底层机制）",
+    "followups": "在百万并发下最有效的工具：jcmd + jstat结合分析堆增长趋势，jstack诊断线程阻塞与锁竞争。",
+    "keywords": "JVM,性能监控,jcmd,jstat,jstack"
   },
   {
     "id": "JVM-006",
@@ -390,10 +390,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java虚拟机-如何利用VisualVM对高并发项目进行性能分析？",
-    "answer": "VisualVM可以监控堆和栈的使用情况，分析CPU消耗和线程状态，进行堆转储(Hprof)分析对象分布，并可结合插件进行GC可视化和内存泄漏检测。",
-    "exam_points": "VisualVM,堆栈分析,线程监控,性能分析,内存泄漏",
-    "followups": "如何利用VisualVM排查高并发应用的内存泄漏问题？",
-    "keywords": "Java虚拟机,VisualVM,性能分析,高并发,堆转储"
+    "answer": "VisualVM基于JMX与JVMTI接口，可以实时监控CPU、内存、线程状态，并支持堆转储（Heap Dump）与对象分布分析。通过Sampling/Profiler模块可检测热点方法与内存泄漏来源。底层依托HotSpot Diagnostic MBean实现与JConsole一致的数据采集。",
+    "exam_points": "堆分析（Heap Dump）、线程监控（Thread View）、CPU采样（Profiler）、内存泄漏检测（对象保留树）",
+    "followups": "定位内存泄漏：对比两次堆转储文件，通过引用链分析对象未释放原因。",
+    "keywords": "VisualVM,性能分析,内存泄漏,堆转储,JMX"
   },
   {
     "id": "JVM-007",
@@ -401,10 +401,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java虚拟机-GC算法原理有哪些？",
-    "answer": "常见GC算法包括：标记-清除、标记-整理、复制算法、分代收集、CMS并发标记清除、G1分代+Region回收，目的是提高吞吐量和降低停顿时间。",
-    "exam_points": "GC算法,分代收集,停顿时间,并发GC,G1 GC,CMS GC",
-    "followups": "CMS和G1 GC在高并发系统中的选择原则是什么？",
-    "keywords": "Java虚拟机,垃圾回收,GC算法,CMS,G1GC,内存管理"
+    "answer": "主要GC算法包括：标记-清除（Mark-Sweep，速度快但碎片多）、标记-整理（Mark-Compact，整理内存减少碎片）、复制算法（Copying，新生代常用）、分代收集（Generation GC）、CMS（并发标记清除，低停顿）、G1（Region分区回收，预测停顿）。底层基于可达性分析算法（Root Tracing）。",
+    "exam_points": "可达性分析（GC Roots）、复制算法（新生代）、标记整理（老年代）、CMS（并发GC）、G1（分区回收）",
+    "followups": "CMS追求低停顿，G1通过Region化管理与混合GC减少碎片、预测停顿时间，更适合高并发系统。",
+    "keywords": "GC算法,JVM,标记清除,复制算法,G1,CMS"
   },
   {
     "id": "JVM-008",
@@ -412,10 +412,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java虚拟机-类文件结构和类加载过程是什么？",
-    "answer": "类文件包含魔数、版本号、常量池、访问标志、字段、方法、属性。类加载过程包括加载（Load）、验证（Verify）、准备（Prepare）、解析（Resolve）、初始化（Initialize）五个阶段，由不同类加载器负责。",
-    "exam_points": "类文件结构,类加载五阶段,类加载器,字节码验证",
-    "followups": "双亲委派模型的作用是什么？",
-    "keywords": "Java虚拟机,类加载,类文件结构,字节码,类加载器"
+    "answer": "Class文件由字节码指令与元数据组成，包含魔数、版本号、常量池、访问标志、字段表、方法表、属性表。类加载过程分为五步：加载（读取字节码）、验证（安全检查）、准备（内存分配静态变量）、解析（符号引用替换为直接引用）、初始化（执行<clinit>）。双亲委派模型通过上层优先加载确保安全。",
+    "exam_points": "类文件结构（常量池+方法表）、类加载五阶段、字节码验证、双亲委派模型",
+    "followups": "双亲委派模型作用：防止核心类被篡改，保证类加载安全与一致性。",
+    "keywords": "类加载,Class文件,字节码,双亲委派,JVM"
   },
   {
     "id": "JVM-009",
@@ -423,10 +423,10 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Java虚拟机-类加载器有哪几种类型？",
-    "answer": "主要有引导类加载器(Bootstrap ClassLoader)、扩展类加载器(Extension ClassLoader)、系统类加载器(System ClassLoader)和自定义类加载器(Custom ClassLoader)。",
-    "exam_points": "类加载器类型,双亲委派模型,类加载顺序,自定义加载器",
-    "followups": "自定义类加载器如何实现热加载？",
-    "keywords": "Java虚拟机,类加载器,Bootstrap,系统类加载器,自定义类加载器"
+    "answer": "JVM内置四类类加载器：1）BootstrapClassLoader：加载核心类（rt.jar）；2）ExtensionClassLoader：加载扩展库；3）SystemClassLoader：加载classpath下类；4）CustomClassLoader：用户自定义，重写findClass实现自定义加载逻辑。类加载器遵循双亲委派，保证核心类不被篡改。",
+    "exam_points": "类加载器层级（Bootstrap→Ext→System）、双亲委派机制、自定义加载器实现（重写findClass）",
+    "followups": "自定义类加载器热加载：通过破坏双亲委派+卸载ClassLoader实现类的重新加载。",
+    "keywords": "类加载器,双亲委派,自定义加载,JVM"
   },
   {
     "id": "JVM-010",
@@ -434,10 +434,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java虚拟机-JVM架构及运行原理是什么？",
-    "answer": "JVM架构包括类加载子系统、运行时数据区（方法区、堆、栈、PC寄存器、本地方法栈）、执行引擎和本地接口。它负责加载字节码、执行指令、内存管理、GC及本地方法调用。",
-    "exam_points": "JVM组成,类加载,执行引擎,内存管理,本地方法调用",
-    "followups": "解释字节码执行的解释器与JIT编译器的区别和优势。",
-    "keywords": "Java虚拟机,JVM架构,执行引擎,类加载,内存管理"
+    "answer": "JVM由类加载子系统、运行时数据区、执行引擎、本地接口组成。执行引擎包括解释器（逐行执行字节码）与JIT编译器（即时编译为机器码）。底层通过热点探测（HotSpot）触发JIT编译优化执行效率。JVM还提供本地方法接口与GC子系统，实现自动内存管理与跨语言调用。",
+    "exam_points": "JVM组件（类加载+执行引擎+内存模型）、解释器/JIT编译器、HotSpot优化（热点探测）",
+    "followups": "解释器逐行解释慢但灵活，JIT编译生成机器码速度快但消耗内存，两者协同工作以兼顾性能与启动速度。",
+    "keywords": "JVM架构,执行引擎,JIT,解释器,HotSpot"
   },
   {
     "id": "JVM-011",
@@ -445,10 +445,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Java虚拟机-对象生命周期包括哪些阶段？",
-    "answer": "对象生命周期包括创建（new）、使用（赋值、方法调用）、不可达/死亡（GC回收），JVM根据对象年龄决定新生代或老年代分配，并采用不同GC算法回收。",
-    "exam_points": "对象分配,对象回收,GC,新生代老年代,引用类型",
-    "followups": "弱引用、软引用、虚引用在对象回收中的作用是什么？",
-    "keywords": "Java虚拟机,对象生命周期,垃圾回收,新生代,老年代"
+    "answer": "对象生命周期分为：创建（new字节码+类加载）、使用（引用操作）、不可达（GC Roots不可达）、回收（标记清除或整理）、空间再分配。对象存活状态由引用类型与GC判断。JVM通过分代机制决定对象晋升与回收策略。",
+    "exam_points": "对象分配（堆Eden区）、GC回收（标记清除/整理）、对象晋升（Survivor→Old）、引用类型（强/软/弱/虚）",
+    "followups": "软引用用于缓存（内存紧张时清除）、弱引用用于避免内存泄漏、虚引用用于监控对象回收。",
+    "keywords": "对象生命周期,GC,引用类型,JVM,内存管理"
   },
   {
     "id": "JVM-012",
@@ -456,10 +456,10 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Java虚拟机-String常量池原理是什么？",
-    "answer": "String常量池存储在方法区（Java 7之后存放在堆），用于复用字符串对象。编译期的字面量放入池中，运行期intern方法可将字符串放入池，减少内存占用。",
-    "exam_points": "字符串复用,intern方法,常量池位置,性能优化",
-    "followups": "为什么使用String.intern可以减少内存开销？",
-    "keywords": "Java虚拟机,String常量池,内存优化,intern,字符串复用"
+    "answer": "String常量池用于存储字符串字面量与intern化后的字符串。Java 7后常量池从方法区移动到堆中，通过StringTable（哈希表）管理。调用intern()时，如果池中不存在则将引用加入池中，实现字符串复用，减少内存浪费。",
+    "exam_points": "常量池位置（堆中）、intern机制（字符串驻留）、编译期字面量复用（编译期优化）",
+    "followups": "String.intern减少内存开销的原因：避免重复创建相同字符串实例，实现共享引用。",
+    "keywords": "String常量池,intern,堆,字符串复用,JVM"
   },
   {
     "id": "NET-001",
@@ -467,9 +467,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "OSI 和 TCP/IP 网络分层模型详解",
-    "answer": "OSI 模型分为七层：物理层、数据链路层、网络层、传输层、会话层、表示层、应用层；TCP/IP 模型分为四层：网络接口层、网络层、传输层、应用层。两者在实际应用中，TCP/IP 模型更简化且被广泛采用。",
-    "exam_points": "OSI七层, TCP/IP四层, 功能划分, 协议映射",
-    "followups": "在实际开发中如何理解 TCP/IP 模型与 OSI 模型的对应关系？",
+    "answer": "OSI 模型分为七层：物理层、数据链路层、网络层、传输层、会话层、表示层、应用层；TCP/IP 模型分为四层：网络接口层、网络层、传输层、应用层。底层原理：OSI 模型是理论参考框架，强调层与层之间解耦与标准化通信；TCP/IP 模型源自互联网协议栈实现，设计更简洁，重点在于高效的数据传输与可扩展性。",
+    "exam_points": "OSI七层（物理、数据链路、网络、传输、会话、表示、应用），TCP/IP四层（网络接口、网络、传输、应用），功能划分（逐层封装与解封装原理），协议映射（HTTP 对应应用层，TCP 对应传输层，IP 对应网络层）。",
+    "followups": "在实际开发中如何理解 TCP/IP 模型与 OSI 模型的对应关系？（TCP/IP 将 OSI 的上三层合并为应用层，更符合实际网络实现；两者在功能上可一一映射，但 TCP/IP 更注重实用性与传输效率。）",
     "keywords": "OSI,TCP/IP,网络分层,协议栈,网络模型"
   },
   {
@@ -478,9 +478,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "应用层常见协议总结",
-    "answer": "应用层协议包括 HTTP/HTTPS（网页访问）、FTP（文件传输）、SMTP/POP3/IMAP（邮件）、DNS（域名解析）、Telnet/SSH（远程登录）等，用于不同应用场景的数据通信。",
-    "exam_points": "HTTP,FTP,SMTP,DNS,远程登录协议",
-    "followups": "在开发中如何选择不同的应用层协议？",
+    "answer": "应用层协议包括 HTTP/HTTPS（网页访问）、FTP（文件传输）、SMTP/POP3/IMAP（邮件传输与收取）、DNS（域名解析）、Telnet/SSH（远程登录）等。底层原理：这些协议运行在 TCP 或 UDP 之上，通过端口号区分服务进程，实现不同类型的数据交互与应用通信。",
+    "exam_points": "HTTP（基于TCP的超文本传输），FTP（文件上传下载），SMTP/POP3（邮件协议），DNS（域名解析协议），SSH（安全远程连接）。",
+    "followups": "在开发中如何选择不同的应用层协议？（根据数据可靠性和实时性需求选择：如HTTP用于网页通信，FTP用于文件传输，DNS用于解析，SSH用于安全登录。）",
     "keywords": "应用层协议,HTTP,FTP,DNS,SMTP,SSH"
   },
   {
@@ -489,9 +489,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "应用层 HTTP vs HTTPS",
-    "answer": "HTTP 是明文传输协议，通信数据不加密；HTTPS 在 HTTP 基础上加入 SSL/TLS 加密，保证数据传输安全，防止中间人攻击和窃听。",
-    "exam_points": "HTTP,HTTPS,加密传输,SSL/TLS,安全性",
-    "followups": "HTTPS 相比 HTTP 性能上有什么影响？",
+    "answer": "HTTP 是明文传输协议，数据不加密；HTTPS 在 HTTP 基础上通过 SSL/TLS 层实现加密通信。底层原理：HTTPS 使用非对称加密建立安全信道（握手阶段），再使用对称加密传输数据，结合数字证书验证服务器身份，防止中间人攻击和窃听。",
+    "exam_points": "HTTP（明文传输），HTTPS（加密通信），SSL/TLS（安全层协议），加密方式（对称+非对称结合），安全性（身份认证、防窃听、防篡改）。",
+    "followups": "HTTPS 相比 HTTP 性能上有什么影响？（HTTPS 多了一次握手和加解密过程，会增加延迟和CPU开销，但可通过TLS复用、HTTP/2、多路复用减少性能损耗。）",
     "keywords": "HTTP,HTTPS,SSL,TLS,安全传输"
   },
   {
@@ -500,9 +500,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "应用层 HTTP 1.0 vs HTTP 1.1",
-    "answer": "HTTP 1.0 每次请求建立独立连接，1.1 引入持久连接（Keep-Alive）、管线化、Host 头部、多缓存机制等，提升性能和资源复用率。",
-    "exam_points": "HTTP版本差异,持久连接,管线化,请求头变化",
-    "followups": "为什么 HTTP 1.1 性能比 HTTP 1.0 好？",
+    "answer": "HTTP 1.0 每次请求建立新连接，性能低；HTTP 1.1 引入持久连接（Keep-Alive）、管线化请求、Host 头部、多缓存机制等，大幅提升传输效率。底层原理：通过TCP连接复用减少三次握手次数，通过管线化让多个请求同时发送，降低RTT延迟。",
+    "exam_points": "持久连接（减少握手次数），管线化（并发请求优化），Host头（支持虚拟主机），缓存机制（提升加载性能）。",
+    "followups": "为什么 HTTP 1.1 性能比 HTTP 1.0 好？（因为持久连接与管线化机制显著减少TCP开销，使请求复用一个连接，减少延迟与资源消耗。）",
     "keywords": "HTTP1.0,HTTP1.1,持久连接,管线化,请求头"
   },
   {
@@ -511,9 +511,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "应用层 HTTP 常见状态码",
-    "answer": "HTTP 状态码分为 1xx（信息）、2xx（成功）、3xx（重定向）、4xx（客户端错误）、5xx（服务器错误）。常用状态码：200 OK, 301/302 重定向, 404 Not Found, 500 Internal Server Error。",
-    "exam_points": "状态码分类,常用状态码,HTTP响应理解",
-    "followups": "在接口设计中如何合理使用状态码？",
+    "answer": "HTTP 状态码分为 1xx（信息提示）、2xx（成功响应）、3xx（重定向）、4xx（客户端错误）、5xx（服务器错误）。底层原理：状态码是服务器响应头中的标准字段，用于指示请求处理状态，便于客户端逻辑控制与异常处理。",
+    "exam_points": "1xx（信息类），2xx（成功类），3xx（重定向类），4xx（客户端错误类），5xx（服务器错误类），常见200、301、404、500。",
+    "followups": "在接口设计中如何合理使用状态码？（根据RESTful标准区分结果：成功200/201，参数错误400，未授权401，找不到404，服务器异常500。）",
     "keywords": "HTTP,状态码,200,404,500,301,302"
   },
   {
@@ -522,9 +522,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "应用层 DNS 域名系统详解",
-    "answer": "DNS 是域名解析系统，将域名映射为 IP 地址。核心组成包括根域名服务器、顶级域名服务器、权威域名服务器和本地域名解析器。解析流程包括递归查询和迭代查询。",
-    "exam_points": "DNS组成,解析流程,递归与迭代,IP映射",
-    "followups": "为什么 CDN 可以利用 DNS 优化访问速度？",
+    "answer": "DNS 是将域名映射为 IP 地址的系统。底层原理：通过层级服务器（根、顶级、权威、本地DNS）递归或迭代查询，实现从域名到IP的解析。缓存机制用于减少重复查询。",
+    "exam_points": "DNS层级结构（根、TLD、权威、本地），解析方式（递归、迭代），缓存（提升查询效率）。",
+    "followups": "为什么 CDN 可以利用 DNS 优化访问速度？（CDN通过智能DNS调度，将用户请求解析到距离最近的节点IP，实现负载均衡和延迟最小化。）",
     "keywords": "DNS,域名解析,递归查询,迭代查询,CDN"
   },
   {
@@ -533,9 +533,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "传输层 TCP 三次握手和四次挥手",
-    "answer": "三次握手用于建立连接：客户端发送 SYN，服务端返回 SYN+ACK，客户端确认 ACK；四次挥手用于断开连接：客户端发送 FIN，服务端确认 ACK，服务端发送 FIN，客户端确认 ACK，保证双方完全关闭连接。",
-    "exam_points": "三次握手,四次挥手,连接建立,连接释放,可靠通信",
-    "followups": "为什么 TCP 断开连接需要四次挥手而不是三次？",
+    "answer": "三次握手：SYN→SYN+ACK→ACK；四次挥手：FIN→ACK→FIN→ACK。底层原理：通过TCP头部中的SYN、ACK、FIN标志位确保连接的可靠建立与释放，防止旧连接数据干扰。",
+    "exam_points": "三次握手（建立连接），四次挥手（断开连接），SYN/ACK/FIN标志（通信状态控制），连接可靠性（防止丢包和混乱）。",
+    "followups": "为什么 TCP 断开连接需要四次挥手而不是三次？（因为TCP是全双工通信，关闭连接需双向确认，每一方都要单独发送FIN和ACK包。）",
     "keywords": "TCP,三次握手,四次挥手,连接管理,传输层"
   },
   {
@@ -544,9 +544,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "传输层 TCP 传输可靠性保障",
-    "answer": "TCP 通过序列号、确认号、重传机制、流量控制（滑动窗口）、拥塞控制、校验和保证数据可靠传输，确保数据按顺序到达且不丢失。",
-    "exam_points": "序列号,确认号,滑动窗口,重传机制,拥塞控制",
-    "followups": "TCP 如何处理网络丢包和乱序问题？",
+    "answer": "TCP通过序列号、确认号、超时重传、滑动窗口、流量控制、拥塞控制、校验和实现可靠传输。底层原理：利用ACK确认机制与超时重传保证不丢包，通过滑动窗口动态调整数据流，拥塞控制避免网络过载。",
+    "exam_points": "序列号（数据有序），确认号（丢包检测），重传机制（可靠性保障），滑动窗口（流量调节），拥塞控制（防止过载）。",
+    "followups": "TCP 如何处理网络丢包和乱序问题？（利用序列号重排序、ACK确认丢失包、超时重传机制重新发送。）",
     "keywords": "TCP,可靠性,重传,流量控制,拥塞控制"
   },
   {
@@ -555,9 +555,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "网络层 ARP 协议详解",
-    "answer": "ARP（Address Resolution Protocol）用于将 IP 地址映射为 MAC 地址，通过广播请求 MAC 地址并接收目标设备响应，实现局域网内主机通信。",
-    "exam_points": "ARP原理,IP-MAC映射,广播请求,局域网通信",
-    "followups": "ARP 缓存是如何工作的？如何防止 ARP 攻击？",
+    "answer": "ARP（地址解析协议）用于将 IP 地址解析为 MAC 地址。底层原理：主机通过广播ARP请求，目标主机返回自己的MAC地址，结果被缓存至ARP表以便后续快速通信。",
+    "exam_points": "ARP请求（广播查找），ARP响应（返回MAC），缓存表（减少广播开销），IP-MAC映射（实现链路层通信）。",
+    "followups": "ARP 缓存是如何工作的？如何防止 ARP 攻击？（缓存存储IP-MAC对应关系并定期更新；可通过静态ARP表或ARP防火墙防止欺骗。）",
     "keywords": "ARP,IP-MAC映射,局域网,广播,协议"
   },
   {
@@ -566,9 +566,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "网络层 NAT 协议详解",
-    "answer": "NAT（Network Address Translation）将私有网络地址转换为公网地址，实现内网主机访问互联网。类型包括静态 NAT、动态 NAT、端口映射（PAT）。",
-    "exam_points": "NAT原理,地址转换,端口映射,私网与公网通信",
-    "followups": "NAT 如何影响 P2P 应用通信？",
+    "answer": "NAT（网络地址转换）将私有地址映射为公网地址。底层原理：通过修改IP包头中的源地址与端口号，实现内网主机共享公网IP访问互联网；常见类型包括静态NAT、动态NAT和端口映射（PAT）。",
+    "exam_points": "地址转换（修改IP头），端口映射（区分主机会话），私网与公网通信（节约IP资源）。",
+    "followups": "NAT 如何影响 P2P 应用通信？（NAT隐藏真实IP，导致外部无法主动连接内网主机，需UPnP或STUN等协议辅助穿透。）",
     "keywords": "NAT,私网,公网,地址转换,端口映射"
   },
   {
@@ -577,9 +577,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "网络安全 网络攻击常见手段总结",
-    "answer": "常见网络攻击手段包括：DDoS攻击、SQL注入、XSS跨站脚本、CSRF跨站请求伪造、中间人攻击(MITM)、ARP欺骗、端口扫描、弱口令攻击等。",
-    "exam_points": "攻击类型,防御措施,漏洞利用,网络安全基础",
-    "followups": "在设计安全网络时，如何防御 DDoS 和 SQL 注入攻击？",
+    "answer": "常见网络攻击包括 DDoS 攻击、SQL注入、XSS跨站脚本、CSRF跨站请求伪造、中间人攻击、ARP欺骗、端口扫描、暴力破解等。底层原理：攻击利用系统或协议漏洞，篡改、窃取或阻断数据通信。",
+    "exam_points": "攻击类型（DDoS、SQL注入、XSS、CSRF），防御措施（限流、防火墙、参数校验、验证码），漏洞利用机制（输入注入与会话伪造）。",
+    "followups": "在设计安全网络时，如何防御 DDoS 和 SQL 注入攻击？（DDoS 通过流量清洗、CDN防护、限流策略防御；SQL注入通过预编译语句、输入校验避免注入风险。）",
     "keywords": "网络安全,DDoS,SQL注入,XSS,CSRF,ARP欺骗"
   },
   {
@@ -588,9 +588,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "MySQL 索引详解",
-    "answer": "MySQL 索引用于提高查询效率，常见类型包括 B+ 树索引、哈希索引、全文索引。索引可以加速 WHERE、ORDER BY、JOIN 等操作，但会增加写操作成本和占用空间。",
-    "exam_points": "B+树索引,哈希索引,全文索引,索引优化,索引失效",
-    "followups": "在实际项目中，如何判断是否需要创建索引？",
+    "answer": "MySQL 索引用于提高查询效率，常见类型包括 B+ 树索引、哈希索引、全文索引。索引可以加速 WHERE、ORDER BY、JOIN 等操作，但会增加写操作成本和占用空间。（底层原理：B+ 树索引通过平衡多路搜索树结构实现范围查询优化；哈希索引基于哈希表定位，适合等值查询；全文索引通过倒排索引机制实现关键词搜索。）",
+    "exam_points": "B+树索引,哈希索引,全文索引,索引优化,索引失效（考点答案：理解 B+ 树与哈希索引原理、索引失效原因、查询优化策略。）",
+    "followups": "在实际项目中，如何判断是否需要创建索引？（得分点：分析查询频率、过滤性、表大小与更新频率，避免过度索引带来的写入开销。）",
     "keywords": "MySQL,索引,B+树,哈希,查询优化"
   },
   {
@@ -599,9 +599,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "MySQL 事务隔离级别详解",
-    "answer": "MySQL 支持四种事务隔离级别：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ（默认）、SERIALIZABLE。不同隔离级别解决脏读、不可重复读和幻读的方式不同。",
-    "exam_points": "事务隔离级别,脏读,不可重复读,幻读,InnoDB 默认隔离级别",
-    "followups": "为什么 InnoDB 默认使用 REPEATABLE READ 能防止幻读？",
+    "answer": "MySQL 支持四种事务隔离级别：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ（默认）、SERIALIZABLE。不同隔离级别解决脏读、不可重复读和幻读的方式不同。（底层原理：InnoDB 通过 MVCC、undo log 与锁机制配合实现隔离控制，其中 REPEATABLE READ 结合快照读与间隙锁防止幻读。）",
+    "exam_points": "事务隔离级别,脏读,不可重复读,幻读,InnoDB 默认隔离级别（考点答案：掌握四种隔离级别的区别及其在 InnoDB 中的底层实现。）",
+    "followups": "为什么 InnoDB 默认使用 REPEATABLE READ 能防止幻读？（得分点：使用 MVCC 快照读结合间隙锁阻止新行插入，避免幻读现象。）",
     "keywords": "MySQL,事务,隔离级别,脏读,幻读"
   },
   {
@@ -610,9 +610,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "MySQL 三大日志详解",
-    "answer": "MySQL 三大日志包括：binlog（记录逻辑变更，支持主从复制和增量备份）、redo log（重做日志，保证事务持久性）、undo log（回滚日志，支持事务回滚和 MVCC）。",
-    "exam_points": "binlog,redo log,undo log,事务持久性,恢复机制",
-    "followups": "MySQL 故障恢复时，三大日志如何协同工作？",
+    "answer": "MySQL 三大日志包括：binlog（记录逻辑变更，支持主从复制和增量备份）、redo log（重做日志，保证事务持久性）、undo log（回滚日志，支持事务回滚和 MVCC）。（底层原理：binlog 属于 Server 层逻辑日志，redo/undo 属于 InnoDB 层物理日志，三者协作实现事务的持久化与一致性。）",
+    "exam_points": "binlog,redo log,undo log,事务持久性,恢复机制（考点答案：掌握日志间关系及其在事务恢复与复制中的作用。）",
+    "followups": "MySQL 故障恢复时，三大日志如何协同工作？（得分点：通过 redo 恢复已提交事务、undo 回滚未提交事务、binlog 用于数据恢复与复制同步。）",
     "keywords": "MySQL,日志,binlog,redo log,undo log"
   },
   {
@@ -621,9 +621,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "InnoDB 存储引擎对 MVCC 的实现",
-    "answer": "InnoDB 通过 undo log 和多版本数据快照实现 MVCC（多版本并发控制），保证 REPEATABLE READ 隔离级别下的可重复读，同时提高并发性能。",
-    "exam_points": "MVCC,undo log,快照读,并发控制,InnoDB",
-    "followups": "为什么 MVCC 可以减少锁竞争？",
+    "answer": "InnoDB 通过 undo log 和多版本数据快照实现 MVCC（多版本并发控制），保证 REPEATABLE READ 隔离级别下的可重复读，同时提高并发性能。（底层原理：每条记录维护两个隐藏列 trx_id 和 roll_pointer，通过版本链访问历史版本；快照读通过读取旧版本实现无锁读。）",
+    "exam_points": "MVCC,undo log,快照读,并发控制,InnoDB（考点答案：理解 MVCC 在 InnoDB 的实现机制与其作用于事务隔离的原理。）",
+    "followups": "为什么 MVCC 可以减少锁竞争？（得分点：读操作直接访问快照，无需加锁，实现读写分离与高并发性能。）",
     "keywords": "MySQL,InnoDB,MVCC,并发控制,事务"
   },
   {
@@ -632,9 +632,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "SQL 语句在 MySQL 中的执行过程",
-    "answer": "SQL 执行流程包括：解析 SQL（语法解析和预处理）、优化器生成执行计划、存储引擎执行计划、返回结果。优化器决定使用索引、全表扫描或排序策略。",
-    "exam_points": "解析,优化器,执行计划,存储引擎,索引使用",
-    "followups": "如何通过 EXPLAIN 分析 SQL 执行效率？",
+    "answer": "SQL 执行流程包括：解析 SQL（语法解析和预处理）、优化器生成执行计划、存储引擎执行计划、返回结果。优化器决定使用索引、全表扫描或排序策略。（底层原理：MySQL Server 层完成解析与优化，存储引擎层通过 Handler API 执行实际数据访问。）",
+    "exam_points": "解析,优化器,执行计划,存储引擎,索引使用（考点答案：掌握 SQL 从解析到执行的完整链路及优化器作用。）",
+    "followups": "如何通过 EXPLAIN 分析 SQL 执行效率？（得分点：理解执行计划中的 type、key、rows、Extra 字段，识别全表扫描与索引使用情况。）",
     "keywords": "MySQL,SQL执行,解析,优化器,执行计划"
   },
   {
@@ -643,9 +643,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "MySQL 查询缓存详解",
-    "answer": "查询缓存会缓存 SELECT 查询结果，但仅适用于 MySQL < 8.0。更新表数据时会自动失效，现代 MySQL 多使用索引优化替代查询缓存。",
-    "exam_points": "查询缓存,缓存失效,性能优化,SELECT查询",
-    "followups": "为什么高并发场景下查询缓存可能不如索引高效？",
+    "answer": "查询缓存会缓存 SELECT 查询结果，但仅适用于 MySQL < 8.0。更新表数据时会自动失效，现代 MySQL 多使用索引优化替代查询缓存。（底层原理：Server 层维护查询结果缓存区，通过 SQL 文本和结果集映射实现，但更新频繁时缓存失效率高。）",
+    "exam_points": "查询缓存,缓存失效,性能优化,SELECT查询（考点答案：理解查询缓存机制、失效条件及其替代方案。）",
+    "followups": "为什么高并发场景下查询缓存可能不如索引高效？（得分点：缓存频繁失效导致锁竞争与内存浪费，索引查询更稳定。）",
     "keywords": "MySQL,查询缓存,性能优化,SELECT"
   },
   {
@@ -654,9 +654,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "MySQL 执行计划分析",
-    "answer": "通过 EXPLAIN 或 EXPLAIN ANALYZE 查看 SQL 执行计划，了解查询方式（全表扫描、索引扫描）、连接类型、行数估算、排序方式，从而进行优化。",
-    "exam_points": "EXPLAIN,执行计划,索引选择,性能分析",
-    "followups": "在大表查询中，如何根据执行计划优化 SQL？",
+    "answer": "通过 EXPLAIN 或 EXPLAIN ANALYZE 查看 SQL 执行计划，了解查询方式（全表扫描、索引扫描）、连接类型、行数估算、排序方式，从而进行优化。（底层原理：优化器基于统计信息生成成本模型，通过代价估算选择最优执行路径。）",
+    "exam_points": "EXPLAIN,执行计划,索引选择,性能分析（考点答案：熟悉 EXPLAIN 输出结构与优化方向。）",
+    "followups": "在大表查询中，如何根据执行计划优化 SQL？（得分点：减少回表、创建覆盖索引、调整连接顺序。）",
     "keywords": "MySQL,执行计划,EXPLAIN,性能优化"
   },
   {
@@ -665,9 +665,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "MySQL 自增主键一定是连续的吗？",
-    "answer": "MySQL 自增主键不一定连续，由于事务回滚、服务器重启或批量插入失败，可能出现自增跳号，但仍保证唯一性。",
-    "exam_points": "自增主键,唯一性,非连续性,事务回滚",
-    "followups": "如何保证序列连续性？是否推荐？",
+    "answer": "MySQL 自增主键不一定连续，由于事务回滚、服务器重启或批量插入失败，可能出现自增跳号，但仍保证唯一性。（底层原理：自增 ID 由内存计数器维护，事务回滚不回收 ID 值，崩溃重启后重新初始化计数。）",
+    "exam_points": "自增主键,唯一性,非连续性,事务回滚（考点答案：理解自增 ID 的分配机制与不连续原因。）",
+    "followups": "如何保证序列连续性？是否推荐？（得分点：可通过业务自定义序列或号段生成，但通常不推荐以连续性为目标。）",
     "keywords": "MySQL,自增主键,事务,连续性"
   },
   {
@@ -676,9 +676,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "MySQL 时间类型数据存储建议",
-    "answer": "建议使用 TIMESTAMP/DATE/DATETIME 类型存储时间，选择时考虑时区、存储大小和查询需求，避免使用字符串类型存储时间。",
-    "exam_points": "时间类型,存储大小,时区问题,查询效率",
-    "followups": "在分布式系统中，如何保证时间字段一致性？",
+    "answer": "建议使用 TIMESTAMP/DATE/DATETIME 类型存储时间，选择时考虑时区、存储大小和查询需求，避免使用字符串类型存储时间。（底层原理：TIMESTAMP 存储为 UTC 并自动转换，DATETIME 存储绝对值，比较效率高于字符串。）",
+    "exam_points": "时间类型,存储大小,时区问题,查询效率（考点答案：区分 TIMESTAMP 与 DATETIME 的底层存储方式及优缺点。）",
+    "followups": "在分布式系统中，如何保证时间字段一致性？（得分点：统一使用 UTC 存储，前端展示时再转换时区。）",
     "keywords": "MySQL,时间类型,TIMESTAMP,DATETIME,存储优化"
   },
   {
@@ -687,9 +687,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "MySQL 隐式转换造成索引失效",
-    "answer": "在 WHERE 条件中对索引列进行函数、类型转换会导致索引失效，例如 WHERE DATE(create_time)='2025-11-05'，会触发全表扫描。",
-    "exam_points": "索引失效,隐式转换,查询优化,函数使用",
-    "followups": "如何改写 SQL 保持索引生效？",
+    "answer": "在 WHERE 条件中对索引列进行函数、类型转换会导致索引失效，例如 WHERE DATE(create_time)='2025-11-05'，会触发全表扫描。（底层原理：优化器无法使用索引范围扫描，因为表达式破坏索引顺序性。）",
+    "exam_points": "索引失效,隐式转换,查询优化,函数使用（考点答案：掌握隐式转换和函数操作导致索引失效的原因与优化方法。）",
+    "followups": "如何改写 SQL 保持索引生效？（得分点：在条件中避免对索引列进行函数或类型转换，可改为 create_time >= '2025-11-05 00:00:00' AND create_time < '2025-11-06'。）",
     "keywords": "MySQL,索引,优化,隐式转换,性能"
   },
   {
@@ -697,77 +697,77 @@
     "module": "数据库",
     "difficulty": "中级",
     "type": "问答题",
-    "title": "InnoDB 与 MyISAM 等存储引擎对比",
-    "answer": "InnoDB 支持事务、行级锁、MVCC；MyISAM 不支持事务，使用表级锁，适合读多写少场景。InnoDB 是默认存储引擎，适合高并发 OLTP。",
-    "exam_points": "事务支持,锁机制,存储引擎选择,并发性能",
-    "followups": "在高并发写场景下，为什么选择 InnoDB？",
-    "keywords": "MySQL,InnoDB,MyISAM,存储引擎,事务"
+    "title": "MySQL 分区表的作用与原理",
+    "answer": "分区表将大表的数据根据规则（如 RANGE、HASH、LIST、KEY）分成多个物理分区，每个分区独立存储。底层原理是通过分区函数将数据映射到不同的分区文件中，提升查询性能和维护效率。",
+    "exam_points": "表分区,分区类型,查询优化,存储管理,性能调优（考点答案：理解 MySQL 分区表机制与应用场景，掌握 RANGE/HASH 的实现原理与优化策略）",
+    "followups": "为什么分区表在某些情况下反而会降低性能？（得分要点：分区条件未命中、分区过多导致元数据维护复杂、查询需跨分区扫描）",
+    "keywords": "MySQL,分区表,RANGE,HASH,性能优化"
   },
   {
     "id": "DB-012",
     "module": "数据库",
     "difficulty": "中级",
     "type": "问答题",
-    "title": "MySQL 从 B 树到 B+ 树到索引再到存储引擎",
-    "answer": "MySQL 使用 B+ 树实现大多数索引（主键、普通索引），叶子节点存储数据指针。存储引擎负责数据落盘与索引维护，优化查询性能。",
-    "exam_points": "B+树索引,主键索引,存储引擎,B树演进",
-    "followups": "为什么 InnoDB 用 B+ 树而非 B 树？",
-    "keywords": "MySQL,B+树,索引,存储引擎,查询优化"
+    "title": "MySQL 自增主键的实现机制",
+    "answer": "自增主键通过 AUTO_INCREMENT 实现，MySQL 会在表定义中维护一个自增计数器。底层原理：InnoDB 在表的元数据中存储自增值，内存中维护缓存区，每次插入根据当前计数器递增生成唯一主键。",
+    "exam_points": "自增主键,唯一性,自增计数器,事务隔离（考点答案：掌握自增主键生成流程及缓存机制，理解并发插入下自增值的分配逻辑）",
+    "followups": "高并发下自增主键会造成性能瓶颈吗？如何优化？（得分要点：使用分布式 ID、雪花算法或主键段分配减少锁竞争）",
+    "keywords": "MySQL,自增主键,AUTO_INCREMENT,InnoDB"
   },
   {
     "id": "DB-013",
     "module": "数据库",
-    "difficulty": "中级",
+    "difficulty": "高级",
     "type": "问答题",
-    "title": "MySQL 全文索引详解",
-    "answer": "全文索引用于匹配文本内容，支持 MATCH...AGAINST 查询。InnoDB 支持英文全文索引和中文分词插件，适合搜索场景。",
-    "exam_points": "全文索引,MATCH AGAINST,文本搜索,分词",
-    "followups": "全文索引与 LIKE 查询性能对比？",
-    "keywords": "MySQL,全文索引,文本搜索,InnoDB"
+    "title": "MySQL 主从复制的原理",
+    "answer": "MySQL 主从复制通过主库的 binlog 日志实现数据同步。从库读取主库 binlog 并重放，保证数据一致。底层原理：主库将变更写入 binlog，从库通过 IO 线程读取，SQL 线程执行重放，形成异步复制链路。",
+    "exam_points": "主从复制,binlog,IO线程,SQL线程,数据一致性（考点答案：掌握异步复制机制、binlog 作用与延迟成因）",
+    "followups": "如何减少主从复制延迟？（得分要点：使用半同步复制、优化网络带宽、调整 binlog_format）",
+    "keywords": "MySQL,主从复制,binlog,数据同步"
   },
   {
     "id": "DB-014",
     "module": "数据库",
-    "difficulty": "中级",
+    "difficulty": "高级",
     "type": "问答题",
-    "title": "MySQL 锁详解",
-    "answer": "MySQL 锁包括表级锁、行级锁、意向锁、共享锁、排他锁。InnoDB 默认使用行级锁和 MVCC，提高并发性能。锁是事务控制和并发控制的核心。",
-    "exam_points": "锁类型,行级锁,表级锁,意向锁,MVCC",
-    "followups": "行锁与表锁在高并发场景下的性能差异？",
-    "keywords": "MySQL,锁,事务,InnoDB,并发控制"
+    "title": "MySQL 死锁产生的原因与排查方法",
+    "answer": "死锁是多个事务相互持有对方所需资源且无法继续执行的状态。底层原理：InnoDB 使用锁图检测循环依赖，一旦发现死锁，自动回滚其中一个事务以解除。常因不同事务锁定顺序不一致导致。",
+    "exam_points": "死锁,锁顺序,事务隔离,InnoDB锁检测（考点答案：掌握死锁形成机制、检测原理与日志分析方法）",
+    "followups": "如何预防死锁？（得分要点：保证加锁顺序一致，减少长事务，使用合理索引避免全表锁）",
+    "keywords": "MySQL,死锁,事务,锁竞争"
   },
   {
     "id": "DB-015",
     "module": "数据库",
     "difficulty": "中级",
     "type": "问答题",
-    "title": "MySQL 事务详解",
-    "answer": "MySQL 事务具有 ACID 特性：原子性、一致性、隔离性、持久性。通过 InnoDB 实现，结合 redo log、undo log 保证事务可靠执行。",
-    "exam_points": "事务特性,ACID,日志机制,InnoDB实现",
-    "followups": "在并发场景下，如何选择合适的隔离级别？",
-    "keywords": "MySQL,事务,ACID,InnoDB,并发控制"
+    "title": "MySQL 外键的作用与限制",
+    "answer": "外键用于维护表间引用完整性，保证子表数据依赖父表存在。底层原理：InnoDB 通过约束检查在插入/更新时验证父表存在性，删除父表记录时可级联更新或删除。",
+    "exam_points": "外键约束,引用完整性,级联操作,性能影响（考点答案：掌握外键的约束行为、触发时机与性能代价）",
+    "followups": "为什么很多互联网系统不使用外键？（得分要点：影响写入性能与扩展性，可通过应用层控制实现逻辑约束）",
+    "keywords": "MySQL,外键,InnoDB,约束"
   },
   {
     "id": "DB-016",
     "module": "数据库",
     "difficulty": "中级",
     "type": "问答题",
-    "title": "mysqldump 工具命令参数大全",
-    "answer": "mysqldump 是 MySQL 数据备份工具，可导出数据库或表结构和数据。常用参数：--databases, --tables, --single-transaction, --lock-tables, --routines。",
-    "exam_points": "备份工具,参数说明,逻辑备份,数据恢复",
-    "followups": "在高并发数据库备份中如何保证一致性？",
-    "keywords": "MySQL,备份,mysqldump,数据恢复,参数"
+    "title": "MySQL B+Tree 索引与哈希索引的区别",
+    "answer": "B+Tree 索引支持范围查询和排序，结构为多层有序树；哈希索引基于哈希函数计算位置，仅支持等值查询。底层原理：InnoDB 默认使用 B+Tree，MyISAM 也基于 B+Tree，而 Memory 引擎可使用 Hash 索引。",
+    "exam_points": "B+Tree,Hash索引,查询类型,存储引擎（考点答案：理解两类索引原理与适用场景）",
+    "followups": "为什么 InnoDB 不适合使用哈希索引？（得分要点：因不支持范围查询与排序，且哈希冲突处理复杂）",
+    "keywords": "MySQL,B+Tree,Hash,索引"
   },
   {
     "id": "DB-017",
     "module": "数据库",
-    "difficulty": "中级",
+    "difficulty": "高级",
     "type": "问答题",
-    "title": "MySQL 索引面试易被刁难点",
-    "answer": "面试官可能问索引失效场景（函数、隐式类型转换、范围查询）、覆盖索引、联合索引最左前缀原则、索引排序原理。",
-    "exam_points": "索引失效,联合索引,最左前缀,覆盖索引",
-    "followups": "如何设计联合索引满足查询需求？",
-    "keywords": "MySQL,索引,联合索引,最左前缀,优化"
+    "title": "MySQL 执行计划（EXPLAIN）如何分析",
+    "answer": "EXPLAIN 用于查看 SQL 的执行计划，包括访问类型、索引使用、扫描行数等。底层原理：优化器生成执行计划，决定表连接顺序和索引使用策略，EXPLAIN 输出显示优化器的决策路径。",
+    "exam_points": "EXPLAIN,执行计划,优化器,索引选择（考点答案：熟悉 EXPLAIN 各列含义、能判断SQL性能瓶颈）",
+    "followups": "看到 type=ALL 表示什么？如何优化？（得分要点：表示全表扫描，可通过创建索引、优化 WHERE 条件改善）",
+    "keywords": "MySQL,EXPLAIN,执行计划,SQL优化"
   },
   {
     "id": "DB-018",
@@ -775,9 +775,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "MySQL 乐观锁与悲观锁",
-    "answer": "悲观锁假设并发冲突高，通过锁机制防止冲突（SELECT ... FOR UPDATE）；乐观锁假设冲突少，通过版本号或 CAS 保证数据一致性。",
-    "exam_points": "悲观锁,乐观锁,并发控制,版本号,CAS",
-    "followups": "在高并发写场景中，为什么推荐乐观锁？",
+    "answer": "悲观锁假设并发冲突高，通过锁机制防止冲突（SELECT ... FOR UPDATE）；乐观锁假设冲突少，通过版本号或 CAS 保证数据一致性。底层原理：悲观锁基于数据库锁机制，乐观锁通过版本号字段在更新时校验，避免加锁等待。",
+    "exam_points": "悲观锁,乐观锁,并发控制,版本号,CAS（考点答案：理解两类锁的设计理念、优缺点与适用场景）",
+    "followups": "在高并发写场景中，为什么推荐乐观锁？（得分要点：减少锁竞争、提高吞吐量、适合低冲突业务场景）",
     "keywords": "MySQL,锁,乐观锁,悲观锁,事务"
   },
   {
@@ -785,22 +785,22 @@
     "module": "数据库",
     "difficulty": "高级",
     "type": "问答题",
-    "title": "MySQL 上亿大表优化方案",
-    "answer": "优化方法包括：合理分库分表、索引优化、SQL 重写、分区表、冷热数据分离、缓存策略、慢查询分析和查询计划优化。",
-    "exam_points": "大表优化,分库分表,索引优化,分区表,缓存",
-    "followups": "如何监控优化后性能是否达标？",
-    "keywords": "MySQL,大表优化,分区,索引,缓存"
+    "title": "MySQL InnoDB 与 MyISAM 的区别",
+    "answer": "InnoDB 支持事务、行级锁和外键；MyISAM 不支持事务，使用表级锁。底层原理：InnoDB 采用聚簇索引存储数据，支持崩溃恢复；MyISAM 使用非聚簇索引，数据与索引分离，性能高但可靠性低。",
+    "exam_points": "InnoDB,MyISAM,事务,锁粒度,存储结构（考点答案：掌握两种存储引擎架构差异与选择原则）",
+    "followups": "为什么新系统更推荐 InnoDB？（得分要点：事务安全、崩溃恢复、并发性能更优）",
+    "keywords": "MySQL,InnoDB,MyISAM,事务"
   },
   {
     "id": "DB-020",
     "module": "数据库",
     "difficulty": "高级",
     "type": "问答题",
-    "title": "SQL 优化常用技巧总结",
-    "answer": "技巧包括：避免 SELECT *,使用覆盖索引,避免函数操作索引列,减少子查询,合理使用 JOIN 和 LIMIT,监控慢查询,批量插入优化。",
-    "exam_points": "SQL优化,索引使用,查询重写,慢查询,批量操作",
-    "followups": "在 OLTP 系统中，哪种优化最有效？",
-    "keywords": "MySQL,SQL优化,索引,慢查询,性能"
+    "title": "MySQL 性能调优的常见手段",
+    "answer": "MySQL 性能优化包括：合理使用索引、SQL 优化、缓存机制、分库分表、主从架构。底层原理：通过减少磁盘 I/O、提高缓存命中率、优化执行计划等方式提升性能。",
+    "exam_points": "性能优化,索引优化,查询优化,缓存,分库分表（考点答案：掌握数据库性能瓶颈定位与调优手段）",
+    "followups": "如何定位慢 SQL？（得分要点：使用 slow query log、EXPLAIN、performance_schema 分析执行效率）",
+    "keywords": "MySQL,性能优化,SQL调优,索引"
   },
   {
     "id": "SB-001",
@@ -808,9 +808,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Spring IoC（控制反转）详解",
-    "answer": "IoC 是控制反转，通过容器负责对象的创建、依赖注入和生命周期管理。常用方式包括构造器注入、Setter 注入和 @Autowired 注解。",
-    "exam_points": "IoC原理,依赖注入,Spring容器,Bean生命周期",
-    "followups": "构造器注入和 Setter 注入有什么区别？为什么推荐构造器注入？",
+    "answer": "IoC 是控制反转，通过容器负责对象的创建、依赖注入和生命周期管理。常用方式包括构造器注入、Setter 注入和 @Autowired 注解。（底层原理：IoC 容器在启动时通过 BeanDefinition 加载配置元数据，将对象交由容器实例化、依赖注入和初始化，最终通过 ApplicationContext 统一管理 Bean 实例。）",
+    "exam_points": "IoC原理,依赖注入,Spring容器,Bean生命周期（考点答案：掌握 IoC 核心思想、Bean 创建流程和依赖注入原理）",
+    "followups": "构造器注入和 Setter 注入有什么区别？为什么推荐构造器注入？（得分要点：构造器注入保证依赖完整性、线程安全，避免循环依赖；Setter 更灵活但可能导致空指针）",
     "keywords": "Spring,IoC,依赖注入,控制反转,Bean"
   },
   {
@@ -819,9 +819,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Spring AOP（面向切面编程）详解",
-    "answer": "AOP 用于横切关注点，例如日志、事务、安全等。核心概念包括切点（Pointcut）、通知（Advice）、切面（Aspect）、代理（Proxy）。实现方式有 JDK 动态代理和 CGLIB 代理。",
-    "exam_points": "AOP原理,切点,通知,切面,代理机制",
-    "followups": "JDK 动态代理和 CGLIB 代理的区别？",
+    "answer": "AOP 用于横切关注点，例如日志、事务、安全等。核心概念包括切点（Pointcut）、通知（Advice）、切面（Aspect）、代理（Proxy）。实现方式有 JDK 动态代理和 CGLIB 代理。（底层原理：AOP 通过动态代理机制，在运行时生成代理类包裹目标方法，通过反射执行通知逻辑，实现非侵入式增强。）",
+    "exam_points": "AOP原理,切点,通知,切面,代理机制（考点答案：理解 AOP 动态代理机制、代理类型选择和应用场景）",
+    "followups": "JDK 动态代理和 CGLIB 代理的区别？（得分要点：JDK 基于接口实现代理，CGLIB 基于字节码继承；JDK 性能略高，CGLIB 适合无接口类）",
     "keywords": "Spring,AOP,切面,通知,代理"
   },
   {
@@ -830,9 +830,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Spring 事务详解",
-    "answer": "Spring 事务管理支持编程式事务和声明式事务，基于 PlatformTransactionManager。通过 @Transactional 注解实现事务边界控制，结合事务传播行为和隔离级别。",
-    "exam_points": "事务管理,@Transactional,传播行为,隔离级别,编程式事务",
-    "followups": "为什么在私有方法中调用带 @Transactional 的方法不起作用？",
+    "answer": "Spring 事务管理支持编程式事务和声明式事务，基于 PlatformTransactionManager。通过 @Transactional 注解实现事务边界控制，结合事务传播行为和隔离级别。（底层原理：Spring 通过 AOP 动态代理拦截带有 @Transactional 的方法，创建或加入事务上下文，通过 ConnectionHolder 绑定数据库连接并控制提交回滚。）",
+    "exam_points": "事务管理,@Transactional,传播行为,隔离级别,编程式事务（考点答案：掌握事务传播机制、代理原理、回滚规则）",
+    "followups": "为什么在私有方法中调用带 @Transactional 的方法不起作用？（得分要点：代理无法拦截内部方法调用，导致事务增强逻辑未触发）",
     "keywords": "Spring,事务,@Transactional,传播行为,隔离级别"
   },
   {
@@ -841,9 +841,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Spring 常用设计模式解析",
-    "answer": "Spring 内部常用设计模式包括单例模式、工厂模式、代理模式、观察者模式和模板方法模式。例如 BeanFactory 使用工厂模式管理 Bean。",
-    "exam_points": "设计模式应用,单例,工厂,代理,观察者",
-    "followups": "Spring 的代理模式主要用于哪些功能？",
+    "answer": "Spring 内部常用设计模式包括单例模式、工厂模式、代理模式、观察者模式和模板方法模式。例如 BeanFactory 使用工厂模式管理 Bean。（底层原理：Spring 通过工厂模式实现 Bean 的统一创建，结合单例缓存和代理增强，实现解耦与扩展性。）",
+    "exam_points": "设计模式应用,单例,工厂,代理,观察者（考点答案：掌握 Spring 框架设计思想与常见模式对应位置）",
+    "followups": "Spring 的代理模式主要用于哪些功能？（得分要点：事务控制、AOP、缓存、权限验证等横切逻辑）",
     "keywords": "Spring,设计模式,单例,代理,工厂"
   },
   {
@@ -852,9 +852,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "SpringBoot 自动装配原理详解",
-    "answer": "Spring Boot 自动装配基于 @EnableAutoConfiguration 注解和 SpringFactoriesLoader，结合条件注解 @ConditionalOnXXX 自动装配 Bean，降低手动配置成本。",
-    "exam_points": "自动装配,条件注解,@EnableAutoConfiguration,SpringFactoriesLoader",
-    "followups": "如何自定义 Spring Boot 自动装配？",
+    "answer": "Spring Boot 自动装配基于 @EnableAutoConfiguration 注解和 SpringFactoriesLoader，结合条件注解 @ConditionalOnXXX 自动装配 Bean，降低手动配置成本。（底层原理：Spring Boot 在启动时读取 META-INF/spring.factories 文件，加载自动配置类并通过条件匹配机制动态注册 Bean。）",
+    "exam_points": "自动装配,条件注解,@EnableAutoConfiguration,SpringFactoriesLoader（考点答案：理解自动装配执行流程与条件匹配机制）",
+    "followups": "如何自定义 Spring Boot 自动装配？（得分要点：创建配置类 + META-INF/spring.factories 注册 + 使用 @ConditionalOnXXX 控制加载）",
     "keywords": "SpringBoot,自动装配,Conditional,EnableAutoConfiguration,Bean"
   },
   {
@@ -863,9 +863,9 @@
     "difficulty": "初级",
     "type": "问答题",
     "title": "Spring/Spring Boot 常用注解总结",
-    "answer": "@Component、@Service、@Repository、@Controller/@RestController 用于 Bean 定义；@Autowired、@Qualifier 注入依赖；@Value 注入配置；@Configuration 配置类。",
-    "exam_points": "核心注解,Bean管理,依赖注入,配置注入,RestController",
-    "followups": "Spring Bean 注解与 Spring Boot 注解有什么区别？",
+    "answer": "@Component、@Service、@Repository、@Controller/@RestController 用于 Bean 定义；@Autowired、@Qualifier 注入依赖；@Value 注入配置；@Configuration 配置类。（底层原理：这些注解通过类路径扫描和 BeanDefinition 注册实现自动装配与依赖注入。）",
+    "exam_points": "核心注解,Bean管理,依赖注入,配置注入,RestController（考点答案：掌握注解作用、扫描机制与依赖解析流程）",
+    "followups": "Spring Bean 注解与 Spring Boot 注解有什么区别？（得分要点：Spring 注解定义基础 Bean，Boot 注解整合自动配置与简化声明）",
     "keywords": "Spring,注解,Autowired,Component,RestController"
   },
   {
@@ -874,9 +874,9 @@
     "difficulty": "初级",
     "type": "问答题",
     "title": "SpringBoot 入门指南",
-    "answer": "Spring Boot 提供快速开发方案，通过 starter 依赖简化配置，内嵌 Tomcat，自动装配常用组件，支持 application.properties 或 application.yml 配置文件。",
-    "exam_points": "快速启动,starter依赖,自动装配,内嵌容器,配置文件",
-    "followups": "如何创建一个最小 Spring Boot 应用？",
+    "answer": "Spring Boot 提供快速开发方案，通过 starter 依赖简化配置，内嵌 Tomcat，自动装配常用组件，支持 application.properties 或 application.yml 配置文件。（底层原理：Spring Boot 基于自动装配与条件加载机制初始化核心 Bean 环境并启动嵌入式容器。）",
+    "exam_points": "快速启动,starter依赖,自动装配,内嵌容器,配置文件（考点答案：掌握 Spring Boot 启动机制与核心特性）",
+    "followups": "如何创建一个最小 Spring Boot 应用？（得分要点：引入 spring-boot-starter，添加主类 @SpringBootApplication 并运行）",
     "keywords": "SpringBoot,入门,starter,自动装配,配置"
   },
   {
@@ -885,9 +885,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "IoC 与 AOP 面试高频问题",
-    "answer": "面试常问 IoC 容器启动流程、Bean 生命周期、依赖注入方式以及 AOP 的代理实现、切面顺序、多切点组合等。",
-    "exam_points": "IoC容器,Bean生命周期,依赖注入,AOP代理,切面顺序",
-    "followups": "如果一个 Bean 被多个切面环绕，执行顺序如何确定？",
+    "answer": "面试常问 IoC 容器启动流程、Bean 生命周期、依赖注入方式以及 AOP 的代理实现、切面顺序、多切点组合等。（底层原理：IoC 通过 ApplicationContext 初始化 Bean 并注入依赖；AOP 基于代理链（ProxyChain）实现切面织入与增强控制。）",
+    "exam_points": "IoC容器,Bean生命周期,依赖注入,AOP代理,切面顺序（考点答案：掌握 IoC 启动原理、AOP 代理链执行顺序与增强机制）",
+    "followups": "如果一个 Bean 被多个切面环绕，执行顺序如何确定？（得分要点：根据 @Order 或 Ordered 接口值决定切面执行优先级）",
     "keywords": "Spring,IoC,AOP,面试题,代理"
   },
   {
@@ -896,9 +896,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "消息队列的基本概念和作用",
-    "answer": "消息队列是一种异步通信的中间件，主要作用包括削峰填谷、解耦系统、异步处理、流量削峰和消息可靠传递。",
-    "exam_points": "异步通信,系统解耦,流量削峰,可靠性,消息传递模式",
-    "followups": "在高并发场景下，消息队列如何帮助提高系统吞吐量？",
+    "answer": "消息队列是一种异步通信中间件，通过消息存储与转发机制，实现系统之间的解耦与异步处理。其作用包括削峰填谷、解耦系统、异步处理、流量削峰和消息可靠传递。（底层原理：生产者将消息写入队列，消费者异步读取；消息可存储于内存或磁盘，依赖持久化日志文件保证可靠性。）",
+    "exam_points": "异步通信（生产者与消费者解耦）, 系统解耦（通过中间件隔离依赖）, 流量削峰（队列缓冲请求峰值）, 可靠性（消息持久化与确认机制）, 消息传递模式（点对点与发布订阅）",
+    "followups": "在高并发场景下，消息队列如何帮助提高系统吞吐量？（得分要点：通过异步化降低主线程阻塞、队列缓存吸收峰值流量、分布式消费并行处理提升吞吐量）",
     "keywords": "消息队列,异步,解耦,削峰,可靠性"
   },
   {
@@ -907,9 +907,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "消息队列常见类型及区别",
-    "answer": "消息队列主要分为点对点（Queue）模式和发布/订阅（Topic）模式。Queue 保证消息只被一个消费者消费，Topic 可被多个订阅者同时消费。",
-    "exam_points": "消息模型,点对点,发布订阅,消费者数量,消息分发",
-    "followups": "什么时候优先选择 Queue 模式，什么时候选择 Topic 模式？",
+    "answer": "消息队列主要分为点对点（Queue）模式和发布/订阅（Topic）模式。Queue 模式保证消息仅被一个消费者消费；Topic 模式支持多个订阅者同时消费。（底层原理：Queue 基于单消费者游标推进机制；Topic 基于多消费者偏移量维护机制，允许独立读取。）",
+    "exam_points": "消息模型（Queue/Topic 模式区别）, 点对点（单消费确保唯一性）, 发布订阅（多消费同步通知）, 消费者数量（决定消费行为）, 消息分发（基于偏移量或游标实现）",
+    "followups": "什么时候优先选择 Queue 模式，什么时候选择 Topic 模式？（得分要点：任务分发或工作队列选 Queue；系统广播或事件推送选 Topic）",
     "keywords": "消息队列,点对点,发布订阅,消费模式"
   },
   {
@@ -918,9 +918,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "消息队列可靠性保障机制",
-    "answer": "常见可靠性机制包括消息持久化、消息确认（ACK）、重试机制、幂等性处理和死信队列（DLQ）。",
-    "exam_points": "可靠性,消息持久化,ACK,重试,幂等性,死信队列",
-    "followups": "如果消息被消费失败，如何保证不丢失且不重复消费？",
+    "answer": "消息队列的可靠性机制包括消息持久化、消息确认（ACK）、重试机制、幂等性处理和死信队列（DLQ）。（底层原理：消息发送后写入日志文件，确认ACK后才删除；未确认消息可重投递至DLQ，幂等性通过唯一ID或去重表实现。）",
+    "exam_points": "可靠性（消息落盘与确认机制）, 消息持久化（磁盘存储防丢失）, ACK（生产端或消费端确认交互）, 重试机制（失败重发逻辑）, 幂等性（消费端防重复逻辑）, 死信队列（无法消费消息暂存）",
+    "followups": "如果消息被消费失败，如何保证不丢失且不重复消费？（得分要点：开启持久化+ACK确认+幂等消费策略）",
     "keywords": "消息队列,可靠性,持久化,ACK,幂等性,死信队列"
   },
   {
@@ -929,9 +929,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "消息队列的顺序保证",
-    "answer": "顺序消息通常通过同一队列或同一分区（Partition）保证顺序消费。Kafka 可通过 PartitionKey 保证分区内顺序，RabbitMQ 可通过单队列顺序保证。",
-    "exam_points": "顺序消息,分区,队列,消费顺序,Kafka PartitionKey",
-    "followups": "在高并发情况下如何保证全局顺序？",
+    "answer": "顺序消息通过同一队列或同一分区（Partition）保证顺序消费。Kafka 可通过 PartitionKey 保证分区内顺序；RabbitMQ 可通过单队列顺序消费实现。（底层原理：同分区消息写入单一日志文件，由单线程顺序读取，消费端依次拉取保证顺序性。）",
+    "exam_points": "顺序消息（同分区顺序读写）, 分区（逻辑隔离保证局部顺序）, 队列（单消费者串行消费）, 消费顺序（单线程处理维持顺序）, Kafka PartitionKey（基于key哈希定位分区）",
+    "followups": "在高并发情况下如何保证全局顺序？（得分要点：单分区模型或引入顺序分发组件，牺牲并发换取严格顺序）",
     "keywords": "消息队列,顺序消息,队列,分区,Kafka,RabbitMQ"
   },
   {
@@ -940,9 +940,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "消息队列性能优化思路",
-    "answer": "优化手段包括批量发送、异步发送、减少同步阻塞、合理分区、压缩消息、消费者多线程消费和调整 ACK 策略。",
-    "exam_points": "吞吐量优化,批量发送,异步发送,分区策略,多线程消费",
-    "followups": "Kafka 和 RabbitMQ 在高吞吐量场景下的调优重点有哪些？",
+    "answer": "优化思路包括批量发送、异步发送、减少同步阻塞、合理分区、压缩消息、消费者多线程消费、调整 ACK 策略等。（底层原理：Kafka 通过批量写入日志文件减少磁盘I/O；RabbitMQ 调整 prefetchCount 控制负载分配；异步IO减少上下文切换。）",
+    "exam_points": "吞吐量优化（批量与异步操作）, 批量发送（合并I/O请求）, 异步发送（非阻塞传输）, 分区策略（并行消费扩展吞吐）, 多线程消费（提升CPU利用率）",
+    "followups": "Kafka 和 RabbitMQ 在高吞吐量场景下的调优重点有哪些？（得分要点：Kafka关注批量与分区数；RabbitMQ关注连接池、ACK模式与队列预取数）",
     "keywords": "消息队列,性能优化,批量发送,异步,分区,吞吐量"
   },
   {
@@ -951,9 +951,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "消息重复消费的解决方案",
-    "answer": "主要通过幂等性处理、消息唯一 ID、事务型消息或消费端去重策略来避免消息重复处理带来的影响。",
-    "exam_points": "重复消费,幂等性,消息唯一标识,事务消息,去重",
-    "followups": "如何在分布式环境下保证消息的幂等性？",
+    "answer": "重复消费常见于网络重试或ACK丢失。解决方案包括幂等性处理、唯一消息ID、事务型消息或消费端去重机制。（底层原理：在消费端维护唯一键去重表或Redis集合，通过业务主键防止重复处理。）",
+    "exam_points": "重复消费（ACK丢失与网络重试导致）, 幂等性（同一消息多次处理结果一致）, 消息唯一标识（UUID或业务主键）, 事务消息（保证消息与操作一致性）, 去重（消费端缓存记录）",
+    "followups": "如何在分布式环境下保证消息的幂等性？（得分要点：业务层基于唯一主键+Redis原子操作实现幂等处理）",
     "keywords": "消息队列,重复消费,幂等性,事务消息,去重"
   },
   {
@@ -962,9 +962,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "消息队列在分布式系统中的应用场景",
-    "answer": "主要用于系统解耦、异步处理、削峰填谷、流量削峰、高并发场景的缓冲，以及实现事件驱动架构。",
-    "exam_points": "系统解耦,异步处理,流量削峰,事件驱动,高并发",
-    "followups": "在微服务架构中，消息队列的角色和使用注意事项有哪些？",
+    "answer": "在分布式架构中，消息队列用于系统解耦、异步处理、削峰填谷、流量缓冲与事件驱动架构。（底层原理：通过消息中心作为缓冲层实现异步通信，事件总线驱动微服务间数据流转与状态同步。）",
+    "exam_points": "系统解耦（异步通信解依赖）, 异步处理（延迟执行耗时任务）, 流量削峰（队列缓存高峰请求）, 事件驱动（消息触发业务逻辑）, 高并发（水平扩展消费者）",
+    "followups": "在微服务架构中，消息队列的角色和使用注意事项有哪些？（得分要点：事件中枢+削峰组件；需关注幂等性、顺序性与重试策略）",
     "keywords": "消息队列,异步,解耦,事件驱动,高并发"
   },
   {
@@ -973,9 +973,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "常见消息队列产品及特点",
-    "answer": "RabbitMQ 基于 AMQP，可靠性高，支持复杂路由；Kafka 基于分布式日志，吞吐量高，顺序消息易管理；ActiveMQ、RocketMQ 各有特点适合不同场景。",
-    "exam_points": "消息队列产品,RabbitMQ,Kafka,ActiveMQ,RocketMQ,应用场景",
-    "followups": "如何选择适合自己业务场景的消息队列？",
+    "answer": "RabbitMQ 基于 AMQP 协议，可靠性高、路由灵活；Kafka 基于分布式日志，吞吐量高、顺序可控；ActiveMQ 支持JMS规范、易用性高；RocketMQ 支持事务消息与大规模分布式部署。（底层原理：Kafka 通过分区+日志文件持久化；RabbitMQ 通过交换机路由消息；RocketMQ 基于CommitLog实现顺序存储。）",
+    "exam_points": "RabbitMQ（AMQP协议，可靠性强）, Kafka（分区日志结构，吞吐高）, ActiveMQ（JMS兼容，企业集成）, RocketMQ（事务消息与大规模分布式支持）, 应用场景（根据可靠性与性能需求选型）",
+    "followups": "如何选择适合自己业务场景的消息队列？（得分要点：高吞吐选Kafka，可靠性优先选RabbitMQ，事务一致性选RocketMQ）",
     "keywords": "消息队列,RabbitMQ,Kafka,ActiveMQ,RocketMQ"
   },
   {
@@ -984,30 +984,31 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "消息队列事务与分布式事务解决方案",
-    "answer": "常见方案有本地事务+消息最终一致性、二阶段提交（2PC）、可靠消息服务、RocketMQ 事务消息、Kafka 事务保证等。",
-    "exam_points": "分布式事务,事务消息,最终一致性,2PC,Kafka,RocketMQ",
-    "followups": "如何在微服务架构中保证消息和数据库操作的强一致性？",
+    "answer": "常见方案包括本地事务+消息最终一致性、二阶段提交（2PC）、可靠消息服务、RocketMQ 事务消息与Kafka事务控制。（底层原理：通过半消息机制先持久化事务状态，事务提交后发送确认消息，实现最终一致性。）",
+    "exam_points": "分布式事务（跨系统一致性问题）, 事务消息（消息驱动一致性控制）, 最终一致性（异步补偿机制）, 2PC（两阶段提交协调器实现）, Kafka/RocketMQ（事务消息原理差异）",
+    "followups": "如何在微服务架构中保证消息和数据库操作的强一致性？（得分要点：使用本地事务消息方案，先写本地表再异步投递消息）",
     "keywords": "消息队列,事务,分布式事务,最终一致性,事务消息"
-  },{
-  "id": "DP-001",
-  "module": "设计模式",
-  "difficulty": "中级",
-  "type": "问答题",
-  "title": "什么是设计模式？它的作用是什么？",
-  "answer": "设计模式是前人在软件开发中总结出的可复用解决方案，用于解决特定场景下的设计问题。作用包括提高代码复用性、可维护性、可扩展性，并提升团队沟通效率。",
-  "exam_points": "设计模式概念,作用,代码复用,可维护性,可扩展性",
-  "followups": "你在实际项目中用过哪些设计模式？解决了什么问题？",
-  "keywords": "设计模式,复用,可维护性,可扩展性,软件设计"
-},
+  },
+  {
+    "id": "DP-001",
+    "module": "设计模式",
+    "difficulty": "中级",
+    "type": "问答题",
+    "title": "什么是设计模式？它的作用是什么？",
+    "answer": "设计模式是前人在软件开发中总结出的可复用解决方案，用于解决特定场景下的设计问题。作用包括提高代码复用性、可维护性、可扩展性，并提升团队沟通效率。（底层原理：设计模式体现了面向对象设计原则，如开闭原则、单一职责、依赖倒置等，通过抽象和封装实现解耦。）",
+    "exam_points": "设计模式概念（面向对象抽象复用思想）, 作用（复用与解耦）, 代码复用（通过抽象类与接口实现）, 可维护性（模块化结构）, 可扩展性（多态与组合实现功能延展）",
+    "followups": "你在实际项目中用过哪些设计模式？解决了什么问题？（得分要点：能结合真实项目场景，如Spring中用到单例、代理、工厂等，说明设计思路与收益）",
+    "keywords": "设计模式,复用,可维护性,可扩展性,软件设计"
+  },
   {
     "id": "DP-002",
     "module": "设计模式",
     "difficulty": "中级",
     "type": "问答题",
     "title": "单例模式有什么实现方式？它们的区别是什么？",
-    "answer": "常见实现方式有：饿汉式、懒汉式（线程不安全）、双重检查锁（DCL）、静态内部类、枚举。区别在于线程安全性、延迟加载和实现复杂度不同。",
-    "exam_points": "单例模式,线程安全,延迟加载,双重检查锁,枚举实现",
-    "followups": "在高并发场景下，你会选择哪种单例实现方式？为什么？",
+    "answer": "常见实现方式有：饿汉式、懒汉式（线程不安全）、双重检查锁（DCL）、静态内部类、枚举。区别在于线程安全性、延迟加载和实现复杂度不同。（底层原理：通过JVM类加载机制和内存可见性保证实例唯一性；DCL借助volatile防止指令重排，枚举利用ClassLoader天然线程安全特性实现单例。）",
+    "exam_points": "单例模式（全局唯一实例）, 线程安全（synchronized或volatile保障）, 延迟加载（懒汉式与静态内部类实现）, 双重检查锁（减少同步开销）, 枚举实现（JVM层面保证线程安全）",
+    "followups": "在高并发场景下，你会选择哪种单例实现方式？为什么？（得分要点：推荐静态内部类或枚举方式，原因是线程安全、延迟加载且实现简洁）",
     "keywords": "单例模式,线程安全,DCL,饿汉式,懒汉式"
   },
   {
@@ -1016,9 +1017,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "工厂模式与抽象工厂模式的区别？",
-    "answer": "工厂模式（Factory Method）用于创建一类产品的实例，抽象工厂模式（Abstract Factory）用于创建一族相关或依赖的产品。工厂方法关注单一产品，抽象工厂关注产品族。",
-    "exam_points": "工厂模式,抽象工厂,产品族,单一产品,解耦实例化",
-    "followups": "实际项目中你会用哪种工厂模式？举例说明。",
+    "answer": "工厂模式（Factory Method）用于创建一类产品的实例，抽象工厂模式（Abstract Factory）用于创建一族相关或依赖的产品。工厂方法关注单一产品，抽象工厂关注产品族。（底层原理：工厂方法通过继承和重写create方法实现延迟实例化；抽象工厂通过组合多个工厂接口构成产品族体系，依赖倒置实现可扩展。）",
+    "exam_points": "工厂模式（单一产品创建逻辑封装）, 抽象工厂（多产品族创建接口组合）, 产品族（相关对象统一创建）, 单一产品（单类型对象实例化）, 解耦实例化（通过多态或接口隐藏实现细节）",
+    "followups": "实际项目中你会用哪种工厂模式？举例说明。（得分要点：结合业务，如DAO层使用工厂方法选择数据库驱动；跨模块创建多个相关对象使用抽象工厂）",
     "keywords": "工厂模式,抽象工厂,设计模式,解耦,产品族"
   },
   {
@@ -1027,9 +1028,9 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "观察者模式的应用场景有哪些？",
-    "answer": "观察者模式用于一对多依赖关系场景，典型应用包括事件监听器、消息推送、订阅-发布系统等。当目标对象状态变化时，自动通知所有观察者。",
-    "exam_points": "观察者模式,一对多依赖,事件监听,订阅发布,解耦",
-    "followups": "如何在 Java 中实现线程安全的观察者模式？",
+    "answer": "观察者模式用于一对多依赖关系场景，典型应用包括事件监听器、消息推送、订阅-发布系统等。当目标对象状态变化时，自动通知所有观察者。（底层原理：通过维护观察者列表并使用回调机制实现通知；在Java中可借助接口回调、事件队列或RxJava实现异步通知。）",
+    "exam_points": "观察者模式（一对多依赖）, 事件监听（监听器回调机制）, 订阅发布（解耦消息源与接收方）, 解耦（目标与观察者松耦合）, 异步通知（可结合线程池或消息队列）",
+    "followups": "如何在 Java 中实现线程安全的观察者模式？（得分要点：使用CopyOnWriteArrayList保存观察者列表，结合锁或事件队列异步通知）",
     "keywords": "观察者模式,事件监听,订阅发布,解耦,多态"
   },
   {
@@ -1038,9 +1039,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "策略模式与状态模式的区别？",
-    "answer": "策略模式（Strategy）用于在运行时动态选择算法，状态模式（State）用于对象在不同状态下行为不同。策略模式关注算法替换，状态模式关注对象状态转换。",
-    "exam_points": "策略模式,状态模式,算法封装,状态转换,运行时行为",
-    "followups": "举一个实际项目中使用策略模式优化代码的例子。",
+    "answer": "策略模式（Strategy）用于在运行时动态选择算法，状态模式（State）用于对象在不同状态下行为不同。策略模式关注算法替换，状态模式关注对象状态转换。（底层原理：策略模式通过接口多态动态绑定算法；状态模式利用状态对象持有上下文引用，通过状态切换改变行为逻辑。）",
+    "exam_points": "策略模式（算法封装与切换）, 状态模式（状态切换控制行为）, 算法封装（多态实现策略替换）, 状态转换（状态对象持有上下文引用）, 运行时行为（动态代理或接口回调实现）",
+    "followups": "举一个实际项目中使用策略模式优化代码的例子。（得分要点：如支付方式选择、优惠计算、日志输出策略；描述从if-else结构到策略模式优化）",
     "keywords": "策略模式,状态模式,设计模式,运行时选择,行为变化"
   },
   {
@@ -1049,9 +1050,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "装饰器模式与代理模式有什么区别？",
-    "answer": "装饰器模式用于在不修改原有类的情况下动态扩展功能，关注功能增强；代理模式用于控制对象访问，关注访问控制和方法调用，可做远程代理、延迟加载、权限校验等。",
-    "exam_points": "装饰器模式,代理模式,功能增强,访问控制,设计模式区别",
-    "followups": "在 Java 中，Spring AOP 实现的是装饰器模式还是代理模式？为什么？",
+    "answer": "装饰器模式用于在不修改原有类的情况下动态扩展功能，关注功能增强；代理模式用于控制对象访问，关注访问控制和方法调用，可做远程代理、延迟加载、权限校验等。（底层原理：装饰器通过对象组合动态增强功能；代理通过AOP或动态代理拦截调用实现控制逻辑，如JDK Proxy与CGLIB实现机制。）",
+    "exam_points": "装饰器模式（功能增强）, 代理模式（访问控制与调用拦截）, 功能增强（动态组合）, 访问控制（权限与远程代理）, 设计模式区别（AOP与组合机制差异）",
+    "followups": "在 Java 中，Spring AOP 实现的是装饰器模式还是代理模式？为什么？（得分要点：代理模式；Spring AOP基于动态代理或CGLIB拦截方法实现横切逻辑）",
     "keywords": "装饰器模式,代理模式,功能增强,访问控制,设计模式"
   },
   {
@@ -1060,31 +1061,32 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "模板方法模式的作用和应用场景",
-    "answer": "模板方法模式通过定义算法骨架，将部分步骤延迟到子类实现，实现代码复用和流程控制。应用场景包括通用算法流程抽象、框架设计、批处理任务等。",
-    "exam_points": "模板方法,算法骨架,代码复用,子类扩展,框架设计",
-    "followups": "如何用模板方法模式优化代码中的重复逻辑？",
+    "answer": "模板方法模式通过定义算法骨架，将部分步骤延迟到子类实现，实现代码复用和流程控制。应用场景包括通用算法流程抽象、框架设计、批处理任务等。（底层原理：通过抽象类定义通用算法步骤，并通过final防止骨架修改，子类重写可变步骤实现扩展。）",
+    "exam_points": "模板方法（定义算法骨架）, 算法骨架（固定流程模板）, 代码复用（复用通用步骤）, 子类扩展（重写具体实现）, 框架设计（如Spring模板模式应用）",
+    "followups": "如何用模板方法模式优化代码中的重复逻辑？（得分要点：抽取通用步骤至抽象类，重写差异化部分减少重复代码）",
     "keywords": "模板方法模式,算法骨架,代码复用,流程控制,设计模式"
-  },{
-  "id": "REDIS-001",
-  "module": "Redis",
-  "difficulty": "中级",
-  "type": "问答题",
-  "title": "Redis 的数据类型有哪些？",
-  "answer": "Redis 支持五种核心数据类型：String、List、Set、Hash、Sorted Set (ZSet)，每种数据类型都有不同的应用场景和操作命令。",
-  "exam_points": "数据类型,操作命令,应用场景,性能特点",
-  "followups": "请举例说明每种数据类型的典型应用场景。",
-  "keywords": "Redis,String,List,Set,Hash,ZSet"
-},
+  },
+  {
+    "id": "REDIS-001",
+    "module": "Redis",
+    "difficulty": "中级",
+    "type": "问答题",
+    "title": "Redis 的数据类型有哪些？",
+    "answer": "Redis 支持五种核心数据类型：String、List、Set、Hash、ZSet。底层原理：String 基于 SDS（Simple Dynamic String）动态字符串实现，支持二进制安全与自动扩容；List 基于双端链表或 quicklist 实现，结合压缩列表节省内存；Hash 底层为 dict + ziplist（或 hashtable）实现小表压缩；Set 底层是 dict 结构；ZSet 结合跳表（skiplist）+ dict 实现有序集合查询和排序。",
+    "exam_points": "String（底层为 SDS 动态字符串）、List（quicklist 双端链表+压缩列表）、Hash（dict+ziplist 动态结构）、Set（dict 哈希结构）、ZSet（跳表+字典）",
+    "followups": "典型应用场景：String 用于缓存单值；List 用于消息队列；Hash 存储对象属性；Set 实现去重；ZSet 实现排行榜或延时队列。",
+    "keywords": "Redis,String,List,Set,Hash,ZSet"
+  },
   {
     "id": "REDIS-002",
     "module": "Redis",
     "difficulty": "中级",
     "type": "问答题",
     "title": "Redis 支持持久化吗？有哪些方式？",
-    "answer": "Redis 支持 RDB（快照方式）和 AOF（Append Only File，日志方式）两种持久化方式。RDB 定期保存数据快照，AOF 记录每条写命令并可重放恢复，二者可组合使用。",
-    "exam_points": "RDB,AOF,持久化策略,数据恢复",
-    "followups": "RDB 和 AOF 各自的优缺点是什么？在生产环境中如何选择？",
-    "keywords": "Redis,持久化,RDB,AOF,数据恢复"
+    "answer": "Redis 支持 RDB 和 AOF 两种持久化方式。RDB（快照）通过 fork 子进程将内存数据序列化保存为二进制文件，恢复快但可能丢失最近数据；AOF（日志）记录每次写操作命令，可通过 fsync 控制写盘频率，保证数据完整性但恢复慢。Redis 4.0 起支持混合持久化，将快照与日志结合，实现快速恢复与高可靠性。",
+    "exam_points": "RDB（fork 子进程快照）、AOF（命令日志记录）、混合持久化（RDB + AOF 结合）、fsync（写盘策略控制）",
+    "followups": "RDB 优点是恢复速度快，缺点是丢数据风险高；AOF 优点是可靠性强，缺点是文件大恢复慢；生产推荐混合模式兼顾性能与安全。",
+    "keywords": "Redis,持久化,RDB,AOF,混合持久化"
   },
   {
     "id": "REDIS-003",
@@ -1092,10 +1094,10 @@
     "difficulty": "中级",
     "type": "问答题",
     "title": "Redis 如何保证高性能？",
-    "answer": "Redis 是单线程模型，通过内存存储数据、使用非阻塞 I/O、数据结构优化和事件驱动模型保证高性能。同时通过管道、批量操作、合理的 key 设计提升效率。",
-    "exam_points": "单线程,内存存储,非阻塞I/O,事件驱动,管道优化",
-    "followups": "Redis 单线程会成为性能瓶颈吗？如何解决？",
-    "keywords": "Redis,高性能,单线程,内存存储,事件驱动"
+    "answer": "Redis 采用单线程 + I/O 多路复用模型。核心原理：单线程避免上下文切换开销，所有命令顺序执行保证原子性；底层采用 epoll/select 非阻塞 I/O 监听事件；数据全部存于内存中，访问速度近似 O(1)；并配合管道（pipeline）、批量操作与合理 key 设计减少网络往返。",
+    "exam_points": "单线程（避免锁竞争）、内存存储（高吞吐）、I/O 多路复用（epoll 非阻塞模型）、事件驱动（Reactor 模式）、pipeline（减少 RTT）",
+    "followups": "单线程并非瓶颈，因大部分操作在内存中完成且 I/O 多路复用并发处理；若 CPU 成为瓶颈，可通过分片集群横向扩展。",
+    "keywords": "Redis,高性能,单线程,epoll,内存存储"
   },
   {
     "id": "REDIS-004",
@@ -1103,9 +1105,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Redis 的事务如何实现？",
-    "answer": "Redis 事务使用 MULTI、EXEC、WATCH 等命令实现。MULTI/EXEC 定义事务块，保证命令按顺序执行，WATCH 用于乐观锁控制事务冲突。Redis 事务不支持回滚，只保证命令的原子性执行。",
-    "exam_points": "事务,MULTI,EXEC,WATCH,乐观锁,原子性",
-    "followups": "Redis 事务和关系型数据库事务的区别是什么？",
+    "answer": "Redis 事务通过 MULTI、EXEC、WATCH 实现。MULTI 将命令入队；EXEC 执行队列中的命令，保证顺序与原子性；WATCH 提供乐观锁机制，检测 key 变化中断事务。Redis 不支持回滚，因为命令一旦执行即生效，底层事件循环保证串行一致性。",
+    "exam_points": "MULTI/EXEC（事务命令入队执行）、WATCH（乐观锁）、单线程（顺序执行保证原子性）、无回滚（性能优先）",
+    "followups": "区别：Redis 事务不支持隔离级别与回滚，仅保证命令原子性；数据库事务提供 ACID 全特性。Redis 更偏向性能与简单性。",
     "keywords": "Redis,事务,MULTI,EXEC,WATCH,乐观锁"
   },
   {
@@ -1114,9 +1116,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Redis 常用的缓存策略有哪些？",
-    "answer": "常用缓存策略包括 LRU（最近最少使用）、LFU（最少使用）、FIFO（先进先出）、TTL（过期时间）等，用于管理内存数据淘汰和缓存失效。",
-    "exam_points": "缓存策略,LRU,LFU,FIFO,TTL,内存管理",
-    "followups": "Redis 如何配置和实现 LRU 淘汰策略？",
+    "answer": "Redis 提供多种缓存淘汰策略：LRU（最近最少使用）、LFU（最少访问频率）、FIFO（先进先出）、TTL（按过期时间）。底层通过近似采样算法（默认随机采样 5 个 key）实现近似 LRU/LFU，兼顾性能与准确度。",
+    "exam_points": "LRU（按时间淘汰）、LFU（按访问频次淘汰）、FIFO（按插入顺序淘汰）、TTL（按过期时间淘汰）、采样算法（随机近似实现）",
+    "followups": "Redis 使用采样近似 LRU，是因维护完整 LRU 链表成本高，采样算法能以极低开销达到约 90% 精度。",
     "keywords": "Redis,缓存策略,LRU,LFU,FIFO,TTL"
   },
   {
@@ -1125,10 +1127,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Redis 分布式部署常用方案有哪些？",
-    "answer": "Redis 分布式部署方案主要有主从复制（Master-Slave）、哨兵模式（Sentinel）和 Cluster 集群模式。主从复制实现数据冗余，Sentinel 提供高可用，Cluster 提供数据分片和横向扩展。",
-    "exam_points": "主从复制,哨兵模式,Cluster,高可用,数据分片",
-    "followups": "Redis Cluster 如何保证数据一致性和高可用？",
-    "keywords": "Redis,分布式,主从,哨兵,Cluster,高可用"
+    "answer": "Redis 分布式部署包括主从复制、哨兵模式和 Cluster。主从复制通过异步或部分同步实现数据冗余；哨兵模式监控主从节点状态，自动故障转移；Cluster 使用槽位（16384 slots）实现数据分片与高可用，节点间通过 gossip 协议通信。",
+    "exam_points": "主从复制（数据冗余与读写分离）、哨兵模式（自动故障转移）、Cluster（槽位分片+Gossip 通信）",
+    "followups": "Redis Cluster 通过多副本存储、gossip 通信与 slot 分配保证一致性和高可用。",
+    "keywords": "Redis,分布式,主从,哨兵,Cluster"
   },
   {
     "id": "REDIS-007",
@@ -1136,10 +1138,10 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Redis 的内存优化和对象存储优化策略？",
-    "answer": "Redis 内存优化策略包括合理设置 key 大小、使用压缩数据结构（hash ziplist, list quicklist）、设置过期时间、使用内存回收策略以及避免大对象存储。",
-    "exam_points": "内存优化,key设计,压缩数据结构,过期策略,大对象处理",
-    "followups": "如何在 Redis 中避免内存碎片问题？",
-    "keywords": "Redis,内存优化,压缩数据结构,key设计,大对象"
+    "answer": "Redis 内存优化从结构与配置两方面入手：合理 key 命名减少冗余；启用压缩结构（如 hash-ziplist、list-quicklist）；设置过期时间释放无效数据；避免存储大对象；使用内存回收策略与 jemalloc 优化分配。底层通过对象共享与编码方式（int、embstr、raw）减少内存占用。",
+    "exam_points": "key 设计（缩短命名减少内存）、压缩数据结构（ziplist/quicklist）、过期策略（主动+惰性删除）、对象编码（int/embstr/raw 动态切换）、jemalloc（高效内存分配器）",
+    "followups": "避免内存碎片：合理配置 maxmemory-policy，使用 jemalloc 进行自动整理，控制大对象数量并周期重启清理碎片。",
+    "keywords": "Redis,内存优化,ziplist,quicklist,jemalloc"
   },
   {
     "id": "REDIS-008",
@@ -1147,9 +1149,9 @@
     "difficulty": "高级",
     "type": "问答题",
     "title": "Redis 如何实现分布式锁？",
-    "answer": "Redis 分布式锁通常使用 SET key value NX PX 或 RedLock 算法实现。SET NX 保证原子性，PX 设置过期时间防止死锁，RedLock 通过多个 Redis 节点保证高可用。",
-    "exam_points": "分布式锁,SET NX PX,RedLock,原子性,高可用",
-    "followups": "在高并发场景下，如何保证 Redis 分布式锁的可靠性？",
+    "answer": "Redis 分布式锁核心命令为 SET key value NX PX。NX 保证原子性写入（仅当不存在时创建），PX 设置过期时间防止死锁。RedLock 算法通过多个 Redis 实例实现多节点加锁，提高可靠性。底层依赖时间戳与随机 token 校验防止误删。",
+    "exam_points": "SET NX PX（原子性与超时控制）、RedLock（多节点一致性锁）、随机 token（防误删机制）、原子操作（Lua 脚本释放锁）",
+    "followups": "高并发下可靠性保证：使用 RedLock 多节点冗余机制，设置合理过期时间与校验 token 确保锁有效性。",
     "keywords": "Redis,分布式锁,SET NX PX,RedLock,高可用"
   }
 ]

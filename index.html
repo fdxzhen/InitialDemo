@@ -5,25 +5,110 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Java 面试题库</title>
     <style>
-        body{font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:20px;color:#222;background:#f5f7fb}
-        header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-        h1{font-size:18px;margin:0}
-        .controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;align-items:center}
-        select,input,button{padding:6px 8px;border-radius:6px;border:1px solid #ccc;background:#fff}
-        table{width:100%;border-collapse:collapse;margin-top:12px}
-        th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
-        th{background:#fafafa}
-        .pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#eef4ff;border:1px solid #d8e7ff;font-size:12px;margin-left:6px}
-        .qa{margin-top:12px;padding:12px;border:1px solid #eee;border-radius:8px;background:#fff}
-        .small{font-size:12px;color:#666}
-        #fileInput{display:none}
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 20px;
+            color: #222;
+            background: #f5f7fb;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        h1 { font-size: 18px; margin: 0; }
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+            align-items: center;
+        }
+        select, input, button {
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background: #fff;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            table-layout: auto; /* 保持自适应，但我们会控制哪些列可换行 */
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            vertical-align: top;
+        }
+        th { background: #fafafa; }
+
+        /* ---- 关键：前 4 列不换行（ID、模块、难度、题型） ---- */
+        #qa-table th:nth-child(-n+4),
+        #qa-table td:nth-child(-n+4) {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* 超出显示省略号 */
+            max-width: 240px; /* 防止列过宽，按需调整 */
+        }
+
+        /* 剩余列（题目/考察点）允许换行显示长文本 */
+        #qa-table th:nth-child(n+5),
+        #qa-table td:nth-child(n+5) {
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        /* pill 和详情卡样式 */
+        .pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: #eef4ff;
+            border: 1px solid #d8e7ff;
+            font-size: 12px;
+            margin-right: 6px;
+            white-space: nowrap; /* 保证标签本身不换行 */
+            flex: 0 0 auto;
+        }
+
+        /* 强制同一行、不换行；超出时横向滚动（不会把其他元素挤成竖排） */
+        .pill-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: nowrap; /* 关键：不换行 */
+            overflow-x: auto;  /* 横向滚动，不影响布局 */
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
+            margin: 6px 0;
+        }
+
+        .qa {
+            margin-top: 12px;
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #fff;
+        }
+        .small { font-size: 12px; color: #666; }
+        #fileInput { display: none; }
+
+        /* 小屏适配：让表格横向可滚动（防止强制nowrap导致布局破坏） */
+        @media (max-width: 900px) {
+            .table-wrap { overflow-x: auto; }
+        }
     </style>
 </head>
 <body>
 <header>
     <div>
         <h1>Java 面试题库</h1>
-        <div class="small">加载本地 JSON → 下拉选择即刻生效（同时满足 所有 条件）</div>
+        <div class="small">加载本地 JSON → 下拉选择即刻生效（同时满足所有条件）</div>
     </div>
     <div>
         <button id="btnLoadLocal">选择 JSON 文件</button>
@@ -49,266 +134,181 @@
 
 <div id="stats" class="small"></div>
 
-<table id="qa-table" style="display:none">
-    <thead>
-    <tr><th>ID</th><th>模块</th><th>难度</th><th>题型</th><th>题目</th><th>考察点</th></tr>
-    </thead>
-    <tbody></tbody>
-</table>
+<div class="table-wrap">
+    <table id="qa-table" style="display:none">
+        <thead>
+        <tr><th>ID</th><th>模块</th><th>难度</th><th>题型</th><th>题目</th><th>考察点</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
 <div id="detail"></div>
 
 <script>
-    /*
-      要点：
-      - 筛选为 AND（同时满足模块、难度、题型、关键词）
-      - 比较使用归一化（trim + toLowerCase）
-      - 下拉 option 的 value 使用归一化后的值，显示文本保留原样
-      - 自动响应 select change / keyword input
-    */
+    let rawArray = [], bank = []
 
-    let rawArray = []      // 原始数组（对象）
-    let bank = []          // 规范化后的对象列表
-
-    function normalizeItem(item, idx){
-        // 兼容常见命名，并保存原始显示文本与归一化字段
-        const rawId = item.id || item.ID || item.key || ('Q-' + (idx+1))
+    function normalizeItem(item, idx) {
+        const rawId = item.id || item.ID || item.key || ('Q-' + (idx + 1))
+        // 兼容常见字段名，保持原始显示文本
         const rawModule = item.module || item.category || item.moduleName || ''
         const rawDifficulty = item.difficulty || item.level || ''
-        const rawType = item.type || item.qtype || item.questionType || ''
-        const rawTitle = item.title || item.question || item.question_text || ''
+        const rawType = item.type || item.qtype || ''
+        const rawTitle = item.title || item.question || ''
         const rawAnswer = item.answer || item.answers || ''
-        const rawExamPoints = item.exam_points || item.focus || item.examPoints || item.exam_point || ''
-        const rawFollowups = item.followups || item.extend || item.extend_questions || ''
+        const rawExamPoints = item.exam_points || item.focus || item.examPoints || ''
+        const rawFollowups = item.followups || item.extend || ''
         const rawKeywords = item.keywords || item.tags || ''
-
-        const moduleNorm = String(rawModule || '').trim().toLowerCase()
-        const difficultyNorm = String(rawDifficulty || '').trim().toLowerCase()
-        const typeNorm = String(rawType || '').trim().toLowerCase()
-        const titleNorm = String(rawTitle || '').trim()
-        const searchText = (titleNorm + ' ' + rawAnswer + ' ' + rawExamPoints + ' ' + rawFollowups + ' ' + rawKeywords).toLowerCase()
+        const searchText = (rawTitle + ' ' + rawAnswer + ' ' + rawExamPoints + ' ' + rawFollowups + ' ' + rawKeywords).toLowerCase()
 
         return {
             id: String(rawId),
-            module: String(rawModule || ''),
-            moduleNorm,
-            difficulty: String(rawDifficulty || ''),
-            difficultyNorm,
-            type: String(rawType || ''),
-            typeNorm,
-            title: String(rawTitle || ''),
-            answer: String(rawAnswer || ''),
-            exam_points: String(rawExamPoints || ''),
-            followups: String(rawFollowups || ''),
-            keywords: String(rawKeywords || ''),
+            module: String(rawModule), moduleNorm: String(rawModule).trim().toLowerCase(),
+            difficulty: String(rawDifficulty), difficultyNorm: String(rawDifficulty).trim().toLowercase ? String(rawDifficulty).trim().toLowerCase() : String(rawDifficulty).trim().toLowerCase(),
+            type: String(rawType), typeNorm: String(rawType).trim().toLowerCase(),
+            title: String(rawTitle), answer: String(rawAnswer),
+            exam_points: String(rawExamPoints), followups: String(rawFollowups), keywords: String(rawKeywords),
             searchText
         }
     }
 
-    function loadFromArray(arr){
+    function loadFromArray(arr) {
         rawArray = arr || []
-        bank = rawArray.map((it,i)=>normalizeItem(it,i))
+        bank = rawArray.map((it, i) => normalizeItem(it, i))
         renderFilters()
         applyFilters()
     }
 
-    // 构建下拉选项：使用归一化作为 value，展示第一个遇到的原始文本（保留大小写）
-    function renderFilters(){
-        const mapModule = new Map()
-        const mapDiff = new Map()
-        const mapType = new Map()
-        bank.forEach(item=>{
-            if(item.moduleNorm && !mapModule.has(item.moduleNorm)) mapModule.set(item.moduleNorm, item.module)
-            if(item.difficultyNorm && !mapDiff.has(item.difficultyNorm)) mapDiff.set(item.difficultyNorm, item.difficulty)
-            if(item.typeNorm && !mapType.has(item.typeNorm)) mapType.set(item.typeNorm, item.type)
+    function renderFilters() {
+        const mapM = new Map(), mapD = new Map(), mapT = new Map()
+        bank.forEach(item => {
+            if (item.moduleNorm && !mapM.has(item.moduleNorm)) mapM.set(item.moduleNorm, item.module)
+            if (item.difficultyNorm && !mapD.has(item.difficultyNorm)) mapD.set(item.difficultyNorm, item.difficulty)
+            if (item.typeNorm && !mapT.has(item.typeNorm)) mapT.set(item.typeNorm, item.type)
         })
-        fillSelectWithMap('filter-module', mapModule)
-        fillSelectWithMap('filter-difficulty', mapDiff)
-        fillSelectWithMap('filter-type', mapType)
+        fillSelect('filter-module', mapM)
+        fillSelect('filter-difficulty', mapD)
+        fillSelect('filter-type', mapT)
     }
 
-    function fillSelectWithMap(selId, map){
-        const sel = document.getElementById(selId)
+    function fillSelect(id, map) {
+        const sel = document.getElementById(id)
         let html = '<option value="">全部</option>'
-        Array.from(map.keys()).sort().forEach(norm=>{
-            const display = map.get(norm) || norm
-            html += `<option value="${escapeHtml(norm)}">${escapeHtml(display)}</option>`
+        Array.from(map.keys()).sort().forEach(k => {
+            const display = map.get(k) || k
+            html += `<option value="${escapeHtml(k)}">${escapeHtml(display)}</option>`
         })
         sel.innerHTML = html
     }
 
     function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])) }
 
-    // 核心：AND 筛选（同时满足）
-    function applyFilters(){
-        const moduleVal = (document.getElementById('filter-module').value || '').trim().toLowerCase()
-        const diffVal = (document.getElementById('filter-difficulty').value || '').trim().toLowerCase()
-        const typeVal = (document.getElementById('filter-type').value || '').trim().toLowerCase()
-        const kw = (document.getElementById('filter-keyword').value || '').trim().toLowerCase()
-
-        const filtered = bank.filter(item=>{
-            // AND 逻辑：若某项有选择，必须匹配
-            if(moduleVal && item.moduleNorm !== moduleVal) return false
-            if(diffVal && item.difficultyNorm !== diffVal) return false
-            if(typeVal && item.typeNorm !== typeVal) return false
-            if(kw){
-                if(!item.searchText.includes(kw)) return false
-            }
+    function applyFilters() {
+        const m = fval('filter-module'), d = fval('filter-difficulty'), t = fval('filter-type'), kw = fval('filter-keyword')
+        const filtered = bank.filter(i => {
+            if (m && i.moduleNorm !== m) return false
+            if (d && i.difficultyNorm !== d) return false
+            if (t && i.typeNorm !== t) return false
+            if (kw && !i.searchText.includes(kw)) return false
             return true
         })
-
         renderTable(filtered)
         document.getElementById('stats').textContent = `显示 ${filtered.length} 条（总 ${bank.length} 条）`
     }
 
-    // 表格渲染与详情
-    function renderTable(list){
-        const table = document.getElementById('qa-table')
-        const tbody = table.querySelector('tbody')
+    function fval(id) { return (document.getElementById(id).value || '').trim().toLowerCase() }
+
+    function renderTable(list) {
+        const table = document.getElementById('qa-table'), tbody = table.querySelector('tbody')
         tbody.innerHTML = ''
-        list.forEach(q=>{
+        list.forEach(q => {
             const tr = document.createElement('tr')
             tr.innerHTML = `<td><a href="#" data-id="${escapeHtml(q.id)}" class="link-id">${escapeHtml(q.id)}</a></td>
-      <td>${escapeHtml(q.module)}</td>
-      <td>${escapeHtml(q.difficulty)}</td>
-      <td>${escapeHtml(q.type)}</td>
-      <td>${escapeHtml(q.title)}</td>
-      <td>${escapeHtml(q.exam_points)}</td>`
+        <td>${escapeHtml(q.module)}</td>
+        <td>${escapeHtml(q.difficulty)}</td>
+        <td>${escapeHtml(q.type)}</td>
+        <td>${escapeHtml(q.title)}</td>
+        <td>${escapeHtml(q.exam_points)}</td>`
             tbody.appendChild(tr)
         })
         table.style.display = list.length ? 'table' : 'none'
-        // bind detail links
-        document.querySelectorAll('.link-id').forEach(a=>{
-            a.addEventListener('click', e=>{
-                e.preventDefault()
-                const id = e.target.dataset.id
-                showDetail(id)
-            })
-        })
+        document.querySelectorAll('.link-id').forEach(a => a.onclick = e => { e.preventDefault(); showDetail(e.target.dataset.id) })
     }
 
-
-    function showDetail(id){
-        const qIndex = bank.findIndex(x => x.id === id)
-        if(qIndex === -1){
-            document.getElementById('detail').innerHTML = '';
-            return;
-        }
-        const q = bank[qIndex]
+    function showDetail(id) {
+        const q = bank.find(x => x.id === id)
         const d = document.getElementById('detail')
-
-        // 初始为只读展示
-        d.innerHTML = `<div class="qa" style="position:relative">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong>${escapeHtml(q.id)}</strong>
-            <button id="btn-edit-toggle">修改</button>
-        </div>
-        <div>
-            <span class="pill">${escapeHtml(q.module)}</span>
-            <span class="pill">${escapeHtml(q.difficulty)}</span>
-            <span class="pill">${escapeHtml(q.type)}</span>
-        </div>
-        <p><b>题目：</b> <span id="view-title">${escapeHtml(q.title)}</span></p>
-        <p><b>答案要点：</b> <span id="view-answer">${escapeHtml(q.answer)}</span></p>
-        <p><b>考察点：</b> <span id="view-exam_points">${escapeHtml(q.exam_points)}</span></p>
-        <p><b>延伸：</b> <span id="view-followups">${escapeHtml(q.followups)}</span></p>
-        <p><b>关键词：</b> <span id="view-keywords">${escapeHtml(q.keywords)}</span></p>
+        if (!q) { d.innerHTML = ''; return }
+        d.innerHTML = `<div class="qa">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>${escapeHtml(q.id)}</strong>
+        <button id="btn-edit-toggle">修改</button>
+      </div>
+      <div class="pill-row" aria-hidden="false">
+        <span class="pill">${escapeHtml(q.module)}</span>
+        <span class="pill">${escapeHtml(q.difficulty)}</span>
+        <span class="pill">${escapeHtml(q.type)}</span>
+      </div>
+      <p><b>题目：</b> <span id="view-title">${escapeHtml(q.title)}</span></p>
+      <p><b>答案要点：</b> <span id="view-answer">${escapeHtml(q.answer)}</span></p>
+      <p><b>考察点：</b> <span id="view-exam_points">${escapeHtml(q.exam_points)}</span></p>
+      <p><b>延伸：</b> <span id="view-followups">${escapeHtml(q.followups)}</span></p>
+      <p><b>关键词：</b> <span id="view-keywords">${escapeHtml(q.keywords)}</span></p>
     </div>`
 
-        const btnEdit = document.getElementById('btn-edit-toggle')
+        const btn = document.getElementById('btn-edit-toggle')
         let editing = false
-
-        btnEdit.addEventListener('click', () => {
+        btn.addEventListener('click', () => {
             if (!editing) {
-                // 切换为可编辑
-                editing = true
-                btnEdit.textContent = '保存'
+                editing = true; btn.textContent = '保存'
                 d.querySelector('#view-answer').outerHTML = `<textarea id="edit-answer" style="width:100%;min-height:60px">${escapeHtml(q.answer)}</textarea>`
                 d.querySelector('#view-exam_points').outerHTML = `<textarea id="edit-exam_points" style="width:100%;min-height:40px">${escapeHtml(q.exam_points)}</textarea>`
                 d.querySelector('#view-followups').outerHTML = `<textarea id="edit-followups" style="width:100%;min-height:40px">${escapeHtml(q.followups)}</textarea>`
                 d.querySelector('#view-keywords').outerHTML = `<input id="edit-keywords" type="text" style="width:100%" value="${escapeHtml(q.keywords)}"/>`
             } else {
-                // 保存修改，切换回只读
-                editing = false
-                btnEdit.textContent = '修改'
+                editing = false; btn.textContent = '修改'
                 q.answer = document.getElementById('edit-answer').value
                 q.exam_points = document.getElementById('edit-exam_points').value
                 q.followups = document.getElementById('edit-followups').value
                 q.keywords = document.getElementById('edit-keywords').value
                 q.searchText = (q.title + ' ' + q.answer + ' ' + q.exam_points + ' ' + q.followups + ' ' + q.keywords).toLowerCase()
                 applyFilters()
-
                 d.querySelector('#edit-answer').outerHTML = `<span id="view-answer">${escapeHtml(q.answer)}</span>`
                 d.querySelector('#edit-exam_points').outerHTML = `<span id="view-exam_points">${escapeHtml(q.exam_points)}</span>`
                 d.querySelector('#edit-followups').outerHTML = `<span id="view-followups">${escapeHtml(q.followups)}</span>`
                 d.querySelector('#edit-keywords').outerHTML = `<span id="view-keywords">${escapeHtml(q.keywords)}</span>`
-
                 alert('修改已保存到本地内存，可导出 JSON。')
             }
         })
     }
 
-
-    // 导出：导出当前 AND 筛选后的结果（原始字段结构）
-    document.getElementById('btnExport').addEventListener('click', ()=>{
-        const moduleVal = (document.getElementById('filter-module').value || '').trim().toLowerCase()
-        const diffVal = (document.getElementById('filter-difficulty').value || '').trim().toLowerCase()
-        const typeVal = (document.getElementById('filter-type').value || '').trim().toLowerCase()
-        const kw = (document.getElementById('filter-keyword').value || '').trim().toLowerCase()
-
-        const filtered = bank.filter(item=>{
-            if(moduleVal && item.moduleNorm !== moduleVal) return false
-            if(diffVal && item.difficultyNorm !== diffVal) return false
-            if(typeVal && item.typeNorm !== typeVal) return false
-            if(kw && !item.searchText.includes(kw)) return false
-            return true
-        })
-
-        // Map back to a clean export format (not strictly original raw, but full info)
-        const out = filtered.map(i=>({
-            id: i.id,
-            module: i.module,
-            difficulty: i.difficulty,
-            type: i.type,
-            title: i.title,
-            answer: i.answer,
-            exam_points: i.exam_points,
-            followups: i.followups,
-            keywords: i.keywords
-        }))
-
-        const blob = new Blob([JSON.stringify(out, null, 2)], {type:'application/json'})
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'interview_bank_sample.json'
-        a.click()
-        URL.revokeObjectURL(url)
+    // 事件绑定
+    document.getElementById('btnLoadLocal').addEventListener('click', () => fileInput.click())
+    const fileInput = document.getElementById('fileInput')
+    fileInput.addEventListener('change', e => {
+        const f = e.target.files && e.target.files[0]; if (!f) return
+        const reader = new FileReader()
+        reader.onload = evt => {
+            try {
+                const data = JSON.parse(evt.target.result)
+                if (!Array.isArray(data)) { alert('JSON 必须是数组（[]）'); return }
+                loadFromArray(data)
+            } catch (err) { alert('JSON 解析失败：' + err.message) }
+        }
+        reader.readAsText(f, 'utf-8')
     })
 
-    // 绑定：select 用 change，keyword 用 input（实时）
     document.getElementById('filter-module').addEventListener('change', applyFilters)
     document.getElementById('filter-difficulty').addEventListener('change', applyFilters)
     document.getElementById('filter-type').addEventListener('change', applyFilters)
     document.getElementById('filter-keyword').addEventListener('input', applyFilters)
 
-    // 文件选择加载（FileReader）
-    const fileInput = document.getElementById('fileInput')
-    document.getElementById('btnLoadLocal').addEventListener('click', ()=> fileInput.click())
-    fileInput.addEventListener('change', e=>{
-        const f = e.target.files && e.target.files[0]
-        if(!f) return
-        const reader = new FileReader()
-        reader.onload = evt=>{
-            try{
-                const data = JSON.parse(evt.target.result)
-                if(!Array.isArray(data)) { alert('JSON 必须是数组（[]）'); return }
-                loadFromArray(data)
-            }catch(err){
-                alert('JSON 解析失败：' + err.message)
-            }
-        }
-        reader.readAsText(f, 'utf-8')
+    document.getElementById('btnExport').addEventListener('click', () => {
+        const m = fval('filter-module'), d = fval('filter-difficulty'), t = fval('filter-type'), kw = fval('filter-keyword')
+        const filtered = bank.filter(i => (!m || i.moduleNorm === m) && (!d || i.difficultyNorm === d) && (!t || i.typeNorm === t) && (!kw || i.searchText.includes(kw)))
+        const out = filtered.map(i => ({ id: i.id, module: i.module, difficulty: i.difficulty, type: i.type, title: i.title, answer: i.answer, exam_points: i.exam_points, followups: i.followups, keywords: i.keywords }))
+        const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' })
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'interview_bank_filtered.json'; a.click(); URL.revokeObjectURL(a.href)
     })
 </script>
 </body>
